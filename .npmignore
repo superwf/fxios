@@ -1,0 +1,8 @@
+__test__
+node_modules
+prettier.config.js
+.babelrc
+.eslintrc.js
+example.js
+rollup.config.js
+.gitignore
