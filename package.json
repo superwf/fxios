@@ -1,0 +1,63 @@
+{
+  "name": "fetch-maker",
+  "version": "0.1.0",
+  "description": "fetch生成器",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "jest --watch",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "build": "rollup -c && git add dist",
+    "prettier": "lint-staged"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.jd.com:wangfan15/fetch-maker.git"
+  },
+  "keywords": ["ajax", "fetch", "request"],
+  "author": "wangfan15@jd.com",
+  "license": "ISC",
+  "dependencies": {
+    "babel-preset-react-app": "^3.1.1",
+    "isomorphic-fetch": "^2.2.1",
+    "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.2",
+    "babel-jest": "^22.4.3",
+    "babel-preset-react-app": "^3.1.1",
+    "eslint": "^4.19.1",
+    "eslint-config-react-app": "^2.1.0",
+    "eslint-plugin-flowtype": "^2.46.1",
+    "eslint-plugin-import": "^2.10.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0",
+    "fetch-mock": "^6.3.0",
+    "jest": "^22.4.3",
+    "lint-staged": "^7.0.4",
+    "pre-commit": "^1.2.2",
+    "rollup": "^0.57.1",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.3.0"
+  },
+  "pre-commit": ["prettier", "build"],
+  "lint-staged": {
+    "*.js": ["prettier --write", "git add"]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testURL": "http://localhost",
+    "transform": {
+      "^.+\\.(js|jsx|mjs)$": "<rootDir>/node_modules/babel-jest"
+    },
+    "moduleFileExtensions": [
+      "web.js",
+      "mjs",
+      "js",
+      "json",
+      "web.jsx",
+      "jsx",
+      "node"
+    ]
+  }
+}
