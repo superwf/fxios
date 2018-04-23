@@ -20,15 +20,22 @@ npm i babel-preset-react-app -D
 ### API
 
 ```js
-const yourFetch = new Fetch({
+import fetchMaker from 'fetch-maker'
+const yourFetch = fetchMaker({
   ...your configs
 })
+```
+
+yourFetch实例是yourFetch.get的简写形式
+```js
+yourFetch(url) // 与下面的请求方式相同
+yourFetch.get(url)
 ```
 
 #### 实例方法
 | 方法 | 参数 | 说明 |
 |---|---|---|
-| get | string, [query] | url请求地址, [Object&#124;String]，url上的query对象或字符串，如{abc: 'def'}或'abc=def'，一下所有query参数说明相同。 |
+| get|yourFetch | string, [query] | url请求地址, [Object&#124;String]，url上的query对象或字符串，如{abc: 'def'}或'abc=def'，一下所有query参数说明相同。 |
 | delete | string, [query] | url, Object, [Object&#124;String] |
 | post | string, data, [query] | url, Object, [Object] |
 | put | string, data, [query] | url, Object, [Object] |

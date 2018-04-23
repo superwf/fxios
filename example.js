@@ -1,4 +1,4 @@
-import Fetch from './'
+import Fetch from './index'
 
 export const config = {
   method: 'get',
@@ -8,7 +8,7 @@ export const config = {
   cache: 'reload',
 }
 
-const fetch = new Fetch(config)
+const fetch = Fetch(config)
 
 const useThen = res => {
   if (!res.ok) {

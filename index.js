@@ -97,10 +97,9 @@ const generateMethods = config => {
   return result
 }
 
-class Fetch {
-  constructor(config) {
-    return generateMethods(config)
-  }
+export default function Fetch(config) {
+  const fe = generateMethods(config)
+  const fetcher = fe.get
+  Object.assign(fetcher, fe)
+  return fetcher
 }
-
-export default Fetch

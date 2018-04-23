@@ -1,7 +1,7 @@
 {
   "name": "fetch-maker",
-  "version": "0.1.1",
-  "description": "fetch生成器",
+  "version": "0.2.0",
+  "description": "fetch generator customize",
   "main": "dist/index.js",
   "scripts": {
     "start": "jest --watch",
@@ -47,6 +47,7 @@
   "jest": {
     "testEnvironment": "node",
     "testURL": "http://localhost",
+    "setupFiles": ["./jest.setup.js"],
     "transform": {
       "^.+\\.(js|jsx|mjs)$": "<rootDir>/node_modules/babel-jest"
     },

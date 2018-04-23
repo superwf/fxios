@@ -66,6 +66,12 @@ describe('fetch', () => {
       fetchMock.put(url.putWithQuery, mockData.putWithQuery)
     })
 
+    it('fetch', () => {
+      return fetch(url.get).then(res => {
+        expect(res).toEqual(mockData.get)
+      })
+    })
+
     it('fetch.get', () => {
       return fetch.get(url.get).then(res => {
         // const lastReq = fetchMock.lastCall()[1]
