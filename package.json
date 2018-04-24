@@ -1,8 +1,9 @@
 {
   "name": "fetch-maker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "fetch generator customize",
   "main": "dist/index.js",
+  "module": "dist/index.module.js",
   "scripts": {
     "start": "jest --watch",
     "test": "jest",

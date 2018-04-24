@@ -16,4 +16,8 @@ export default [
       commonjs(), // so Rollup can convert `ms` to an ES module
     ],
   },
+  {
+    input: 'index.js',
+    output: [{ file: pkg.module, format: 'es' }],
+  },
 ]
