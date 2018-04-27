@@ -26,6 +26,26 @@ const yourFetch = fetchMaker({
 })
 ```
 
+config通常配置
+```js
+{
+  credentials: 'include',
+  redirect: 'manual',
+  mode: 'cors',
+  cache: 'reload',
+}
+```
+`config.base` 配置所有请求的前缀，
+如
+```js
+{
+  ...
+  base: '/api'
+}
+```
+则所有请求都会添加`/api`路径
+
+
 yourFetch实例是yourFetch.get的简写形式
 ```js
 yourFetch(url) // 与下面的请求方式相同
