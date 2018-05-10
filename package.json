@@ -1,6 +1,6 @@
 {
   "name": "fetch-maker",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "fetch generator customize",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
@@ -15,11 +15,7 @@
     "type": "git",
     "url": "git@git.jd.com:wangfan15/fetch-maker.git"
   },
-  "keywords": [
-    "ajax",
-    "fetch",
-    "request"
-  ],
+  "keywords": ["ajax", "fetch", "request"],
   "author": "wangfan15@jd.com",
   "license": "ISC",
   "dependencies": {
@@ -46,22 +42,14 @@
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0"
   },
-  "pre-commit": [
-    "prettier",
-    "build"
-  ],
+  "pre-commit": ["prettier", "build"],
   "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.js": ["prettier --write", "git add"]
   },
   "jest": {
     "testEnvironment": "node",
     "testURL": "http://localhost",
-    "setupFiles": [
-      "./jest.setup.js"
-    ],
+    "setupFiles": ["./jest.setup.js"],
     "transform": {
       "^.+\\.(js|jsx|mjs)$": "<rootDir>/node_modules/babel-jest"
     },

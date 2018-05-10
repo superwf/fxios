@@ -62,9 +62,13 @@
     ;['post', 'put'].forEach(method => {
       result[method] = (url$$1, data, query) => {
         const parsedUrl = parseUrl(url$$1, query);
-        const headers = config.headers || {};
+        let headers = config.headers || {};
         let body;
         if (typeof data === 'object') {
+          headers = {
+            'Content-Type': jsonType,
+            ...headers,
+          };
           body = JSON.stringify(data);
         } else {
           body = data;

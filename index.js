@@ -56,9 +56,13 @@ const generateMethods = config => {
   ;['post', 'put'].forEach(method => {
     result[method] = (url, data, query) => {
       const parsedUrl = parseUrl(url, query)
-      const headers = config.headers || {}
+      let headers = config.headers || {}
       let body
       if (typeof data === 'object') {
+        headers = {
+          'Content-Type': jsonType,
+          ...headers,
+        }
         body = JSON.stringify(data)
       } else {
         body = data
