@@ -1,6 +1,5 @@
 import fetchMock from 'fetch-mock'
 import fetch from '../example'
-import { jsonType } from 'fetch-maker'
 
 const noop = () => {}
 
@@ -74,8 +73,6 @@ describe('fetch', () => {
 
     it('fetch.get', () => {
       return fetch.get(url.get).then(res => {
-        // const lastReq = fetchMock.lastCall()[1]
-        // expect(lastReq.headers['Accept']).toBe(jsonType)
         expect(res).toEqual(mockData.get)
       })
     })
@@ -128,8 +125,6 @@ describe('fetch', () => {
     it('post data', () => {
       return fetch.post(url.postWithData, data).then(res => {
         const lastPost = fetchMock.lastCall()[1]
-        // expect(lastPost.headers['Accept']).toBe(jsonType)
-        expect(lastPost.headers['Content-Type']).toBe(jsonType)
         expect(lastPost.body).toBe(JSON.stringify(data))
         expect(res).toEqual(mockData.postWithData)
       })
@@ -139,8 +134,6 @@ describe('fetch', () => {
       const data = 'zfdsfaewfaw'
       return fetch.post(url.postWithData, data).then(res => {
         const lastPost = fetchMock.lastCall()[1]
-        // expect(lastPost.headers['Accept']).toBe(jsonType)
-        // expect(lastPost.headers['Content-Type']).not.toBe(jsonType)
         expect(lastPost.body).toBe(data)
         expect(res).toEqual(mockData.postWithData)
       })

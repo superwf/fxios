@@ -24,6 +24,9 @@ const parseUrl = (urlString, query) => {
 };
 
 const generateMethods = config => {
+  const base = config.base || '';
+  delete config.base;
+
   const result = {};
 
   const thenCallbacks = [];
@@ -46,25 +49,21 @@ const generateMethods = config => {
   ;['get', 'delete'].forEach(method => {
     result[method] = (url$$1, query) => {
       const parsedUrl = parseUrl(url$$1, query);
-      const promise = global.fetch(parsedUrl, { ...config, method });
+      const promise = global.fetch(`${base}${parsedUrl}`, { ...config, method });
       return chainCallbacks(promise, { url: url$$1, query })
     };
   })
   ;['post', 'put'].forEach(method => {
     result[method] = (url$$1, data, query) => {
       const parsedUrl = parseUrl(url$$1, query);
-      let headers = config.headers || {};
+      const headers = config.headers || {};
       let body;
       if (typeof data === 'object') {
-        headers = {
-          ...headers,
-          'Content-Type': jsonType,
-        };
         body = JSON.stringify(data);
       } else {
         body = data;
       }
-      const promise = global.fetch(parsedUrl, {
+      const promise = global.fetch(`${base}${parsedUrl}`, {
         ...config,
         method,
         headers,
