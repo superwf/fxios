@@ -1,6 +1,7 @@
 import url from 'url';
 import qs from 'querystring';
 import EventEmitter from 'events';
+import merge from 'lodash/merge';
 
 const jsonType = 'application/json';
 
@@ -47,14 +48,17 @@ const generateMethods = config => {
     return promise
   }
   ;['get', 'delete'].forEach(method => {
-    result[method] = (url$$1, query) => {
+    result[method] = (url$$1, query, runtimeConfig = {}) => {
       const parsedUrl = parseUrl(url$$1, query);
-      const promise = global.fetch(`${base}${parsedUrl}`, { ...config, method });
+      const promise = global.fetch(
+        `${base}${parsedUrl}`,
+        merge({ ...config, method }, runtimeConfig),
+      );
       return chainCallbacks(promise, { url: url$$1, query })
     };
   })
   ;['post', 'put'].forEach(method => {
-    result[method] = (url$$1, data, query) => {
+    result[method] = (url$$1, data, query, runtimeConfig = {}) => {
       const parsedUrl = parseUrl(url$$1, query);
       let headers = config.headers || {};
       let body;
@@ -67,15 +71,33 @@ const generateMethods = config => {
       } else {
         body = data;
       }
-      const promise = global.fetch(`${base}${parsedUrl}`, {
-        ...config,
-        method,
-        headers,
-        body,
-      });
+      const promise = global.fetch(
+        `${base}${parsedUrl}`,
+        merge(
+          {
+            ...config,
+            method,
+            headers,
+            body,
+          },
+          runtimeConfig,
+        ),
+      );
       return chainCallbacks(promise, { url: url$$1, data, query })
     };
   });
+
+  result.upload = (url$$1, data, query) => {
+    const parsedUrl = parseUrl(url$$1, query);
+    let headers = config.headers || {};
+    const promise = global.fetch(`${base}${parsedUrl}`, {
+      ...config,
+      method: 'post',
+      headers,
+      body: data,
+    });
+    return chainCallbacks(promise, { url: url$$1, data, query })
+  };
 
   const emitter = new EventEmitter();
 

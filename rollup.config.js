@@ -4,7 +4,7 @@ import pkg from './package.json'
 
 export default [
   {
-    external: ['isomorphic-fetch'],
+    external: ['isomorphic-fetch', 'lodash/merge'],
     input: 'index.js',
     output: {
       name: 'fetch-maker',

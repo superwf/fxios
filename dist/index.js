@@ -1,12 +1,13 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('url'), require('querystring'), require('events')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'url', 'querystring', 'events'], factory) :
-  (factory((global['fetch-maker'] = {}),global.url,global.qs,global.EventEmitter));
-}(this, (function (exports,url,qs,EventEmitter) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('url'), require('querystring'), require('events'), require('lodash/merge')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'url', 'querystring', 'events', 'lodash/merge'], factory) :
+  (factory((global['fetch-maker'] = {}),global.url,global.qs,global.EventEmitter,global.merge));
+}(this, (function (exports,url,qs,EventEmitter,merge) { 'use strict';
 
   url = url && url.hasOwnProperty('default') ? url['default'] : url;
   qs = qs && qs.hasOwnProperty('default') ? qs['default'] : qs;
   EventEmitter = EventEmitter && EventEmitter.hasOwnProperty('default') ? EventEmitter['default'] : EventEmitter;
+  merge = merge && merge.hasOwnProperty('default') ? merge['default'] : merge;
 
   const jsonType = 'application/json';
 
@@ -53,14 +54,17 @@
       return promise
     }
     ;['get', 'delete'].forEach(method => {
-      result[method] = (url$$1, query) => {
+      result[method] = (url$$1, query, runtimeConfig = {}) => {
         const parsedUrl = parseUrl(url$$1, query);
-        const promise = global.fetch(`${base}${parsedUrl}`, { ...config, method });
+        const promise = global.fetch(
+          `${base}${parsedUrl}`,
+          merge({ ...config, method }, runtimeConfig),
+        );
         return chainCallbacks(promise, { url: url$$1, query })
       };
     })
     ;['post', 'put'].forEach(method => {
-      result[method] = (url$$1, data, query) => {
+      result[method] = (url$$1, data, query, runtimeConfig = {}) => {
         const parsedUrl = parseUrl(url$$1, query);
         let headers = config.headers || {};
         let body;
@@ -73,15 +77,33 @@
         } else {
           body = data;
         }
-        const promise = global.fetch(`${base}${parsedUrl}`, {
-          ...config,
-          method,
-          headers,
-          body,
-        });
+        const promise = global.fetch(
+          `${base}${parsedUrl}`,
+          merge(
+            {
+              ...config,
+              method,
+              headers,
+              body,
+            },
+            runtimeConfig,
+          ),
+        );
         return chainCallbacks(promise, { url: url$$1, data, query })
       };
     });
+
+    result.upload = (url$$1, data, query) => {
+      const parsedUrl = parseUrl(url$$1, query);
+      let headers = config.headers || {};
+      const promise = global.fetch(`${base}${parsedUrl}`, {
+        ...config,
+        method: 'post',
+        headers,
+        body: data,
+      });
+      return chainCallbacks(promise, { url: url$$1, data, query })
+    };
 
     const emitter = new EventEmitter();
 

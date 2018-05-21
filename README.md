@@ -55,10 +55,10 @@ yourFetch.get(url)
 #### 实例方法
 | 方法 | 参数 | 说明 |
 |---|---|---|
-| get|yourFetch | string, [query] | url请求地址, [Object&#124;String]，url上的query对象或字符串，如{abc: 'def'}或'abc=def'，一下所有query参数说明相同。 |
-| delete | string, [query] | url, Object, [Object&#124;String] |
-| post | string, data, [query] | url, Object, [Object] |
-| put | string, data, [query] | url, Object, [Object] |
+| get|yourFetch | string url请求地址<br /> [query][Object&#124;String]，url上的query对象或字符串，如{abc: 'def'}或'abc=def'，以下所有query参数说明相同<br> [runtimeConfig] 发生请求时的fetch的config, 会与配置的config合并生效 |
+| delete | string, [query] | url, [Object&#124;String], [runtimeConfig] |
+| post | string, data, [query] | url, Object, [Object|String], [runtimeConfig] |
+| put | string, data, [query] | url, Object, [Object|String], [runtimeConfig] |
 | on | string, function | eventName, Function(...args) 监听函数，参数由emit发射出去的决定 |
 | off | string, function | eventName, func，移除eventName事件队列中的该监听函数 |
 | emit | string, [any] | eventName, 任何想要发射的数据，可多个 |

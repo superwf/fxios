@@ -1,5 +1,5 @@
 import fetchMock from 'fetch-mock'
-import fetch from '../example'
+import fetch, { config } from '../example'
 
 const noop = () => {}
 
@@ -18,6 +18,8 @@ const mockData = {
   put: { code: 'success', message: 'put', data: [] },
   putWithData: { code: 'success', message: 'putWithData', data: [] },
   putWithQuery: { code: 'success', message: 'putWithQuery', data: [] },
+  upload: { code: 'success', message: 'upload' },
+  getWithRuntimeConfig: { code: 'success', message: 'ok' },
 }
 
 const query = { abc: 'xyz' }
@@ -37,6 +39,8 @@ const url = {
   put: '/put',
   putWithData: '/putData',
   putWithQuery: '/put?abc=xyz',
+  upload: '/upload',
+  getWithRuntimeConfig: '/getWithRuntimeConfig',
 }
 
 describe('fetch', () => {
@@ -59,10 +63,14 @@ describe('fetch', () => {
         body: JSON.stringify(data),
       })
       fetchMock.put(url.put, mockData.put)
+      fetchMock.put(url.putWithQuery, mockData.putWithQuery)
       fetchMock.put(url.putWithData, mockData.putWithData, {
         body: JSON.stringify(data),
       })
-      fetchMock.put(url.putWithQuery, mockData.putWithQuery)
+      fetchMock.post(url.upload, mockData.upload, {
+        body: 'xxxxxx',
+      })
+      fetchMock.get(url.getWithRuntimeConfig, mockData.getWithRuntimeConfig)
     })
 
     it('fetch', () => {
@@ -161,6 +169,35 @@ describe('fetch', () => {
       return fetch.put(url.putWithQuery, query).then(res => {
         expect(res).toEqual(mockData.putWithQuery)
       })
+    })
+
+    it('upload', () => {
+      return fetch.upload(url.upload, 'xxxxxx').then(res => {
+        expect(res).toEqual(mockData.upload)
+      })
+    })
+
+    it('getWithRuntimeConfig', () => {
+      const headers = {
+        'x-requext': 'powered-by-x',
+      }
+      return fetch
+        .get(
+          url.getWithRuntimeConfig,
+          {},
+          {
+            headers,
+          },
+        )
+        .then(res => {
+          expect(res).toEqual(mockData.getWithRuntimeConfig)
+          const lastRequestConfig = fetchMock.lastCall()[1]
+          expect(lastRequestConfig).toEqual({
+            ...config,
+            method: 'get',
+            headers,
+          })
+        })
     })
   })
 
