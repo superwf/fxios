@@ -30,6 +30,7 @@ const generateMethods = config => {
 
   const result = {}
 
+  let useCallbacks = []
   const thenCallbacks = []
   const catchCallbacks = []
 
@@ -50,6 +51,11 @@ const generateMethods = config => {
   ;['get', 'delete'].forEach(method => {
     result[method] = (url, query, runtimeConfig = {}) => {
       const parsedUrl = parseUrl(url, query)
+      for (let i = 0; i < useCallbacks.length; i++) {
+        if (!useCallbacks[i]()) {
+          return Promise.reject()
+        }
+      }
       const promise = global.fetch(
         `${base}${parsedUrl}`,
         merge({ ...config, method }, runtimeConfig),
@@ -70,6 +76,11 @@ const generateMethods = config => {
         body = JSON.stringify(data)
       } else {
         body = data
+      }
+      for (let i = 0; i < useCallbacks.length; i++) {
+        if (!useCallbacks[i]()) {
+          return Promise.reject()
+        }
       }
       const promise = global.fetch(
         `${base}${parsedUrl}`,
@@ -118,6 +129,12 @@ const generateMethods = config => {
   }
   result.useCatch = func => {
     catchCallbacks.push(func)
+  }
+  result.use = func => {
+    useCallbacks.push(func)
+  }
+  result.clearUse = () => {
+    useCallbacks = []
   }
   return result
 }

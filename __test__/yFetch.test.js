@@ -85,6 +85,26 @@ describe('fetch', () => {
       })
     })
 
+    it('test use', () => {
+      const fn = jest.fn(() => true)
+
+      fetch.use(fn)
+      return fetch.get(url.get).then(res => {
+        expect(res).toEqual(mockData.get)
+        expect(fn).toHaveBeenCalled()
+        fetch.clearUse()
+      })
+    })
+
+    it('when use func return false, fetch nothing', () => {
+      const fn = jest.fn(() => false)
+      fetch.use(fn)
+      return fetch.get(url.get).catch(() => {
+        expect(fn).toHaveBeenCalled()
+        fetch.clearUse()
+      })
+    })
+
     it('get and receive success event', done => {
       fetch.emitter.once('success', res => {
         expect(res.url).toBe(url.get)

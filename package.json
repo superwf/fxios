@@ -1,6 +1,6 @@
 {
   "name": "fetch-maker",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "fetch generator customize",
   "main": "dist/index.js",
   "module": "dist/index.module.js",

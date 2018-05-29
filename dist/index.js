@@ -36,6 +36,7 @@
 
     const result = {};
 
+    let useCallbacks = [];
     const thenCallbacks = [];
     const catchCallbacks = [];
 
@@ -56,6 +57,11 @@
     ;['get', 'delete'].forEach(method => {
       result[method] = (url$$1, query, runtimeConfig = {}) => {
         const parsedUrl = parseUrl(url$$1, query);
+        for (let i = 0; i < useCallbacks.length; i++) {
+          if (!useCallbacks[i]()) {
+            return Promise.reject()
+          }
+        }
         const promise = global.fetch(
           `${base}${parsedUrl}`,
           merge({ ...config, method }, runtimeConfig),
@@ -76,6 +82,11 @@
           body = JSON.stringify(data);
         } else {
           body = data;
+        }
+        for (let i = 0; i < useCallbacks.length; i++) {
+          if (!useCallbacks[i]()) {
+            return Promise.reject()
+          }
         }
         const promise = global.fetch(
           `${base}${parsedUrl}`,
@@ -124,6 +135,12 @@
     };
     result.useCatch = func => {
       catchCallbacks.push(func);
+    };
+    result.use = func => {
+      useCallbacks.push(func);
+    };
+    result.clearUse = () => {
+      useCallbacks = [];
     };
     return result
   };

@@ -64,6 +64,8 @@ yourFetch.get(url)
 | emit | string, [any] | eventName, 任何想要发射的数据，可多个 |
 | useThen | function | Function(response) => {}在fetch的then回调里处理response的函数，根据添加顺序依次执行，每个函数接收的参数为上一个的返回值，遵守promise原则即可。 |
 | useCatch | function | Function(error) 处理错误的函数，error参数参照下面事件说明中的error参数。 |
+| use | function | Function():Boolean => {}在fetch每次请求前执行，返回bool值，若返回false则该次请求不执行，根据添加顺序依次执行。 |
+| clearUse | | 清空user函数 |
 
 #### 注意事项
 
