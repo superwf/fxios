@@ -15,13 +15,19 @@
     "type": "git",
     "url": "git@git.jd.com:wangfan15/fetch-maker.git"
   },
-  "keywords": ["ajax", "fetch", "request"],
+  "keywords": [
+    "ajax",
+    "fetch",
+    "request"
+  ],
   "author": "wangfan15@jd.com",
   "license": "ISC",
   "dependencies": {
+    "@types/events": "^1.2.0",
     "babel-preset-react-app": "^3.1.1",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.10",
+    "path-to-regexp": "^2.2.1",
     "url": "^0.11.0"
   },
   "devDependencies": {
@@ -37,30 +43,31 @@
     "fetch-mock": "^6.3.0",
     "jest": "^22.4.3",
     "lint-staged": "^7.0.4",
-    "pre-commit": "^1.2.2",
     "prettier": "^1.12.1",
     "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
-    "rollup-plugin-node-resolve": "^3.3.0"
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "ts-jest": "^23.0.0"
   },
-  "pre-commit": ["prettier", "build"],
   "lint-staged": {
-    "*.js": ["prettier --write", "git add"]
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "jest": {
     "testEnvironment": "node",
     "testURL": "http://localhost",
-    "setupFiles": ["./jest.setup.js"],
+    "setupFiles": [
+      "./jest.setup.js"
+    ],
     "transform": {
-      "^.+\\.(js|jsx|mjs)$": "<rootDir>/node_modules/babel-jest"
+      "^.+\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest"
     },
     "moduleFileExtensions": [
-      "web.js",
-      "mjs",
+      "ts",
       "js",
       "json",
-      "web.jsx",
-      "jsx",
       "node"
     ]
   }

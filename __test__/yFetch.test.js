@@ -26,6 +26,7 @@ const query = { abc: 'xyz' }
 const data = { name: '123' }
 const url = {
   get: '/get',
+  getWithParam: '/getUser/:name/edit/:id',
   getAndReturnErrorCode: '/getAndReturnErrorCode',
   getAndReturnErrorString: '/getAndReturnErrorString',
   getWithQuery: '/get?abc=xyz',
@@ -40,6 +41,7 @@ const url = {
   putWithData: '/putData',
   putWithQuery: '/put?abc=xyz',
   upload: '/upload',
+  uploadWithParam: '/upload/:name',
   getWithRuntimeConfig: '/getWithRuntimeConfig',
 }
 
@@ -51,6 +53,7 @@ describe('fetch', () => {
   describe('test http methods', () => {
     beforeAll(() => {
       fetchMock.get(url.get, mockData.get)
+      fetchMock.get('/getUser/abc/edit/111', mockData.get)
       fetchMock.get(url.getWithQuery, mockData.getWithQuery)
       fetchMock.get(`${url.get}?def=def&abc=xyz`, mockData.getWithQuery)
       fetchMock.delete(url.delete, mockData.delete)
@@ -70,6 +73,13 @@ describe('fetch', () => {
       fetchMock.post(url.upload, mockData.upload, {
         body: 'xxxxxx',
       })
+      fetchMock.post(
+        url.uploadWithParam.replace(':name', 'abc'),
+        mockData.upload,
+        {
+          body: 'xxxxxx',
+        },
+      )
       fetchMock.get(url.getWithRuntimeConfig, mockData.getWithRuntimeConfig)
     })
 
@@ -83,6 +93,14 @@ describe('fetch', () => {
       return fetch.get(url.get).then(res => {
         expect(res).toEqual(mockData.get)
       })
+    })
+
+    it('get with route param', () => {
+      return fetch
+        .get(url.getWithParam, {}, { param: { name: 'abc', id: '111' } })
+        .then(res => {
+          expect(res).toEqual(mockData.get)
+        })
     })
 
     it('test use', () => {
@@ -139,8 +157,15 @@ describe('fetch', () => {
     })
 
     it('delete with query', () => {
-      return fetch.delete(url.delete, query).then(res => {
+      return fetch.delete(url.delete, null, query).then(res => {
         expect(res).toEqual(mockData.deleteWithQuery)
+      })
+    })
+
+    it('delete with data', () => {
+      return fetch.delete(url.delete, data).then(res => {
+        const last = fetchMock.lastCall()[1]
+        expect(last.body).toBe(JSON.stringify(data))
       })
     })
 
@@ -195,6 +220,14 @@ describe('fetch', () => {
       return fetch.upload(url.upload, 'xxxxxx').then(res => {
         expect(res).toEqual(mockData.upload)
       })
+    })
+
+    it('upload url with param', () => {
+      return fetch
+        .upload(url.upload, 'xxxxxx', {}, { param: { name: 'abc' } })
+        .then(res => {
+          expect(res).toEqual(mockData.upload)
+        })
     })
 
     it('getWithRuntimeConfig', () => {
