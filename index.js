@@ -1,8 +1,9 @@
-import * as URL from 'url';
-import * as pathToRegexp from 'path-to-regexp';
-import * as EventEmitter from 'events';
+Object.defineProperty(exports, "__esModule", { value: true });
+const URL = require("url");
+const pathToRegexp = require("path-to-regexp");
+const EventEmitter = require("events");
 // copy from lodash
-export function isPlainObject(value) {
+function isPlainObject(value) {
     if (value === undefined || value === null) {
         return false;
     }
@@ -20,14 +21,15 @@ export function isPlainObject(value) {
     }
     return Object.getPrototypeOf(value) === proto;
 }
-export const defaultRequestConfig = {
+exports.isPlainObject = isPlainObject;
+exports.defaultRequestConfig = {
     credentials: 'include',
     redirect: 'manual',
     mode: 'cors',
     cache: 'reload',
 };
-export const jsonType = 'application/json';
-export const parseUrl = (url, query) => {
+exports.jsonType = 'application/json';
+exports.parseUrl = (url, query) => {
     if (typeof url === 'object') {
         url = pathToRegexp.compile(url.url)(url.param);
     }
@@ -39,13 +41,13 @@ export const parseUrl = (url, query) => {
     }
     return url;
 };
-export class Fxios {
-    constructor(config = { request: defaultRequestConfig }) {
+class Fxios {
+    constructor(config = { request: exports.defaultRequestConfig }) {
         this.interceptor = {
             request: [],
             response: [],
         };
-        this.requestConfig = config.request || defaultRequestConfig;
+        this.requestConfig = config.request || exports.defaultRequestConfig;
         this.base = config.base || '';
         const emitter = new EventEmitter();
         // default max is 10
@@ -58,12 +60,12 @@ export class Fxios {
         this.emitter = emitter;
     }
     request(method, url, body, query, runtimeConfig = {}) {
-        const parsedUrl = parseUrl(url, query);
+        const parsedUrl = exports.parseUrl(url, query);
         const { base } = this;
         const request = Object.assign({}, this.requestConfig, { method }, runtimeConfig);
         let headers = request.headers || {};
         if (isPlainObject(body)) {
-            request.headers = Object.assign({ 'content-type': jsonType }, headers);
+            request.headers = Object.assign({ 'content-type': exports.jsonType }, headers);
             body = JSON.stringify(body);
         }
         request.body = body;
@@ -91,3 +93,4 @@ export class Fxios {
         return this.request('put', url, body, query, runtimeConfig);
     }
 }
+exports.Fxios = Fxios;
