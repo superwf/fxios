@@ -3,16 +3,19 @@ import * as pathToRegexp from 'path-to-regexp'
 import * as EventEmitter from 'events'
 
 // copy from lodash
-function isPlainObject(value: any): boolean {
+export function isPlainObject(value: any): boolean {
+  if (value === undefined || value === null) {
+    return false
+  }
+  if (Object.getPrototypeOf(value) === null) {
+    return true
+  }
   if (
     typeof value !== 'object' ||
     value === null ||
     String(value) !== '[object Object]'
   ) {
     return false
-  }
-  if (Object.getPrototypeOf(value) === null) {
-    return true
   }
   let proto = Object.getPrototypeOf(value)
   while (Object.getPrototypeOf(proto) !== null) {
@@ -21,7 +24,7 @@ function isPlainObject(value: any): boolean {
   return Object.getPrototypeOf(value) === proto
 }
 
-export const defaultConfig: RequestInit = {
+export const defaultRequestConfig: RequestInit = {
   credentials: 'include',
   redirect: 'manual',
   mode: 'cors',
@@ -63,8 +66,8 @@ export class Fxios {
 
   requestConfig: RequestInit
 
-  constructor(config: FxiosConfig = { request: defaultConfig }) {
-    this.requestConfig = config.request || defaultConfig
+  constructor(config: FxiosConfig = { request: defaultRequestConfig }) {
+    this.requestConfig = config.request || defaultRequestConfig
     this.base = config.base || ''
     const emitter = new EventEmitter()
     // default max is 10
@@ -101,6 +104,7 @@ export class Fxios {
     }
     request.body = body
     let req: Request = new Request(`${base}${parsedUrl}`, request)
+    // console.log(request, req)
     this.interceptor.request.forEach(cb => {
       req = cb(req)
     })
@@ -112,7 +116,7 @@ export class Fxios {
     return promise
   }
 
-  get(url: Url, query?: Query, runtimeConfig: RequestInit = {}): Promise<any> {
+  get(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
     return this.request('get', url, undefined, query, runtimeConfig)
   }
 
@@ -120,7 +124,7 @@ export class Fxios {
     url: Url,
     body?: any,
     query?: Query,
-    runtimeConfig: RequestInit = {},
+    runtimeConfig?: RequestInit,
   ): Promise<any> {
     return this.request('post', url, body, query, runtimeConfig)
   }
@@ -129,7 +133,7 @@ export class Fxios {
     url: Url,
     body?: any,
     query?: Query,
-    runtimeConfig: RequestInit = {},
+    runtimeConfig?: RequestInit,
   ): Promise<any> {
     return this.request('delete', url, body, query, runtimeConfig)
   }
@@ -138,7 +142,7 @@ export class Fxios {
     url: Url,
     body?: any,
     query?: Query,
-    runtimeConfig: RequestInit = {},
+    runtimeConfig?: RequestInit,
   ): Promise<any> {
     return this.request('put', url, body, query, runtimeConfig)
   }

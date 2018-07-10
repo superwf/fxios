@@ -1,4 +1,9 @@
-import { Fxios, jsonType } from '../index.ts'
+import {
+  Fxios,
+  jsonType,
+  defaultRequestConfig,
+  isPlainObject,
+} from '../index.ts'
 import URL from 'url'
 // import fetch, { config } from '../example'
 // const fetchMock = require('fetch-mock')
@@ -21,6 +26,17 @@ const httpMethods = ['get', 'post', 'put', 'delete']
 describe('fetch', () => {
   beforeEach(() => {
     fetchMock.restore()
+  })
+
+  it('测试isPlainObject', () => {
+    function Foo() {
+      this.a = 'a'
+    }
+    expect(isPlainObject(new Foo())).toBe(false)
+    expect(isPlainObject([1, 2, 3])).toBe(false)
+    expect(isPlainObject({ x: 1, y: 2 })).toBe(true)
+    expect(isPlainObject(Object.create(null))).toBe(true)
+    expect(isPlainObject(Object.create({ a: 1 }))).toBe(false)
   })
 
   it('get方法，无intern.response，直接获取Response类型数据', () => {
@@ -114,6 +130,34 @@ describe('fetch', () => {
           expect(res).toBeInstanceOf(Response)
         })
       })
+
+      it(`${method}方法，测试默认requestConfig.redirect`, () => {
+        const fxios = new Fxios()
+        fetchMock[method](mockUrls.get, mockData.get)
+        fxios.interceptor.request.push(req => {
+          // other defaultRequestConfig props are not in req
+          // because node-fetch is not really browser fetch
+          expect(req.redirect).toBe(defaultRequestConfig.redirect)
+          return req
+        })
+        return fxios[method](mockUrls.get).then(res => {
+          expect(res).toBeInstanceOf(Response)
+        })
+      })
+
+      it(`${method}方法，测试runtimeConfig`, () => {
+        const fxios = new Fxios()
+        fetchMock[method](mockUrls.get, mockData.get)
+        fxios.interceptor.request.push(req => {
+          expect(req.redirect).toBe('error')
+          return req
+        })
+        return fxios[method](mockUrls.get, undefined, undefined, {
+          redirect: 'error',
+        }).then(res => {
+          expect(res).toBeInstanceOf(Response)
+        })
+      })
     }
   })
 
@@ -182,14 +226,16 @@ describe('fetch', () => {
     expect(spy).toHaveBeenCalledTimes(1)
   })
 
-  it('post方法，测试post object', () => {
+  it('post方法，测试post object', async () => {
     const data = { name: '123' }
     const fxios = new Fxios()
     fetchMock.post(mockUrls.post, mockData.post)
-    return fxios.post(mockUrls.post, data).then(res => {
-      const lastPost = fetchMock.lastCall()[0]
-      expect(lastPost.body).toBe(JSON.stringify(data))
-    })
+    await fxios.post(mockUrls.post, data)
+    let lastPost = fetchMock.lastCall()[0]
+    expect(lastPost.body).toBe(JSON.stringify(data))
+    await fxios.post(mockUrls.post, Object.create(null))
+    lastPost = fetchMock.lastCall()[0]
+    expect(lastPost.body).toBe(JSON.stringify({}))
   })
 
   it('post方法，测试post string', () => {

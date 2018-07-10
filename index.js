@@ -2,14 +2,17 @@ import * as URL from 'url';
 import * as pathToRegexp from 'path-to-regexp';
 import * as EventEmitter from 'events';
 // copy from lodash
-function isPlainObject(value) {
-    if (typeof value !== 'object' ||
-        value === null ||
-        String(value) !== '[object Object]') {
+export function isPlainObject(value) {
+    if (value === undefined || value === null) {
         return false;
     }
     if (Object.getPrototypeOf(value) === null) {
         return true;
+    }
+    if (typeof value !== 'object' ||
+        value === null ||
+        String(value) !== '[object Object]') {
+        return false;
     }
     let proto = Object.getPrototypeOf(value);
     while (Object.getPrototypeOf(proto) !== null) {
@@ -17,7 +20,7 @@ function isPlainObject(value) {
     }
     return Object.getPrototypeOf(value) === proto;
 }
-export const defaultConfig = {
+export const defaultRequestConfig = {
     credentials: 'include',
     redirect: 'manual',
     mode: 'cors',
@@ -37,12 +40,12 @@ export const parseUrl = (url, query) => {
     return url;
 };
 export class Fxios {
-    constructor(config = { request: defaultConfig }) {
+    constructor(config = { request: defaultRequestConfig }) {
         this.interceptor = {
             request: [],
             response: [],
         };
-        this.requestConfig = config.request || defaultConfig;
+        this.requestConfig = config.request || defaultRequestConfig;
         this.base = config.base || '';
         const emitter = new EventEmitter();
         // default max is 10
@@ -65,6 +68,7 @@ export class Fxios {
         }
         request.body = body;
         let req = new Request(`${base}${parsedUrl}`, request);
+        // console.log(request, req)
         this.interceptor.request.forEach(cb => {
             req = cb(req);
         });
@@ -74,16 +78,16 @@ export class Fxios {
         });
         return promise;
     }
-    get(url, query, runtimeConfig = {}) {
+    get(url, query, runtimeConfig) {
         return this.request('get', url, undefined, query, runtimeConfig);
     }
-    post(url, body, query, runtimeConfig = {}) {
+    post(url, body, query, runtimeConfig) {
         return this.request('post', url, body, query, runtimeConfig);
     }
-    delete(url, body, query, runtimeConfig = {}) {
+    delete(url, body, query, runtimeConfig) {
         return this.request('delete', url, body, query, runtimeConfig);
     }
-    put(url, body, query, runtimeConfig = {}) {
+    put(url, body, query, runtimeConfig) {
         return this.request('put', url, body, query, runtimeConfig);
     }
 }

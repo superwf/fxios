@@ -15,11 +15,7 @@
     "type": "git",
     "url": "git@git.jd.com:wangfan15/fetch-maker.git"
   },
-  "keywords": [
-    "ajax",
-    "fetch",
-    "request"
-  ],
+  "keywords": ["ajax", "fetch", "request"],
   "author": "superwf@gmail.com",
   "license": "ISC",
   "dependencies": {
@@ -30,7 +26,8 @@
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.10",
     "path-to-regexp": "^2.2.1",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {
     "@types/jest": "^23.1.4",
@@ -59,30 +56,19 @@
     "typescript-eslint-parser": "^16.0.1"
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.js": ["prettier --write", "git add"]
   },
   "typings": "typings/index.d.ts",
   "jest": {
     "testEnvironment": "node",
     "testURL": "http://localhost",
-    "setupFiles": [
-      "./jest.setup.js"
-    ],
+    "collectCoverageFrom": ["index.ts"],
+    "setupFiles": ["./jest.setup.js"],
     "transform": {
       "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest",
       "^.+\\.(t|j)sx?$": "ts-jest"
     },
     "testRegex": "(/__test__/.*(test|spec))\\.(j|t)sx?$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   }
 }

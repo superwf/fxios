@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import * as EventEmitter from 'events';
-export declare const defaultConfig: RequestInit;
+export declare function isPlainObject(value: any): boolean;
+export declare const defaultRequestConfig: RequestInit;
 export declare const jsonType: string;
 export declare const parseUrl: (url: Url, query?: Query | undefined) => string;
 export declare class Fxios {
