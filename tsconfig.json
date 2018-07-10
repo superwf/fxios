@@ -1,17 +1,15 @@
 {
+  "compileOnSave": true,
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2015",
-    "lib": ["es6", "dom"],
+    "target": "es6",
     "noImplicitAny": true,
-    "noImplicitThis": true,
     "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "baseUrl": "../",
-    "typeRoots": ["../"],
-    "types": [],
-    "noEmit": true,
-    "forceConsistentCasingInFileNames": true
-  },
-  "files": ["index.ts"]
+    "alwaysStrict": true,
+    "preserveConstEnums": true,
+    "sourceMap": false,
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "es2015", "es5", "es6"]
+  }
 }

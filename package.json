@@ -15,31 +15,35 @@
     "type": "git",
     "url": "git@git.jd.com:wangfan15/fetch-maker.git"
   },
-  "keywords": [
-    "ajax",
-    "fetch",
-    "request"
-  ],
+  "keywords": ["ajax", "fetch", "request"],
   "author": "wangfan15@jd.com",
   "license": "ISC",
   "dependencies": {
     "@types/events": "^1.2.0",
+    "@types/lodash": "^4.14.110",
+    "@types/node": "^10.5.2",
+    "@types/node-fetch": "^2.1.1",
     "babel-preset-react-app": "^3.1.1",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.10",
     "path-to-regexp": "^2.2.1",
+    "ts-polyfill": "^2.9.0",
     "url": "^0.11.0"
   },
   "devDependencies": {
+    "@types/jest": "^23.1.4",
     "babel-eslint": "^8.2.2",
     "babel-jest": "^22.4.3",
-    "babel-preset-react-app": "^3.1.1",
+    "babel-preset-airbnb": "^2.5.1",
     "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-config-prettier": "^2.9.0",
     "eslint-config-react-app": "^2.1.0",
-    "eslint-plugin-flowtype": "^2.46.1",
-    "eslint-plugin-import": "^2.10.0",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.7.0",
+    "eslint-plugin-flowtype": "^2.49.3",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^6.1.0",
+    "eslint-plugin-react": "^7.10.0",
     "fetch-mock": "^6.3.0",
     "jest": "^22.4.3",
     "lint-staged": "^7.0.4",
@@ -47,28 +51,25 @@
     "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
-    "ts-jest": "^23.0.0"
+    "ts-jest": "^23.0.0",
+    "tslint": "^5.10.0",
+    "tslint-eslint-rules": "^5.3.1",
+    "tslint-react": "^3.6.0",
+    "typescript": "^2.9.2",
+    "typescript-eslint-parser": "^16.0.1"
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.js": ["prettier --write", "git add"]
   },
   "jest": {
     "testEnvironment": "node",
     "testURL": "http://localhost",
-    "setupFiles": [
-      "./jest.setup.js"
-    ],
+    "setupFiles": ["./jest.setup.js"],
     "transform": {
-      "^.+\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest"
+      "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest",
+      "^.+\\.(t|j)sx?$": "ts-jest"
     },
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json",
-      "node"
-    ]
+    "testRegex": "(/__test__/.*(test|spec))\\.(j|t)sx?$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   }
 }
