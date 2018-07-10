@@ -13,16 +13,7 @@ export const defaultConfig: RequestInit = {
 
 export const jsonType: string = 'application/json'
 
-interface UrlParam {
-  url: string
-  param: string
-}
-
-interface Query {
-  [index: string]: string
-}
-
-export const parseUrl = (url: string | UrlParam, query?: Query): string => {
+export const parseUrl = (url: Url, query?: Query): string => {
   if (typeof url === 'object') {
     url = pathToRegexp.compile(url.url)(url.param)
   }
@@ -41,21 +32,9 @@ export const parseUrl = (url: string | UrlParam, query?: Query): string => {
   return url
 }
 
-interface FxiosConfig {
-  base?: string
-  request?: RequestInit
-}
-
-type ResponseCallback = (res: Response, req: RequestInit) => any
-type RequestCallback = (res: Request) => any
-
-interface Interceptor {
-  request: RequestCallback[]
-  response: ResponseCallback[]
-}
-
-class Fxios {
+export class Fxios {
   config: FxiosConfig
+  base: string
   interceptor: Interceptor = {
     request: [],
     response: [],
@@ -67,9 +46,9 @@ class Fxios {
 
   requestConfig: RequestInit
 
-  constructor(config: FxiosConfig = { base: '', request: defaultConfig }) {
+  constructor(config: FxiosConfig = { request: defaultConfig }) {
     this.requestConfig = config.request || defaultConfig
-    this.config = config
+    this.base = config.base || ''
     const emitter = new EventEmitter()
     // default max is 10
     // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
@@ -83,13 +62,13 @@ class Fxios {
 
   request(
     method: string,
-    url: string | UrlParam,
+    url: Url,
     body?: any,
     query?: Query,
     runtimeConfig: RequestInit = {},
   ): Promise<any> {
     const parsedUrl = parseUrl(url, query)
-    const base = this.config.base
+    const { base } = this
     const request: RequestInit = {
       ...this.requestConfig,
       method,
@@ -97,8 +76,8 @@ class Fxios {
     }
     let headers: HeadersInit = request.headers || {}
     if (isPlainObject(body)) {
-      headers = {
-        'Content-Type': jsonType,
+      request.headers = {
+        'content-type': jsonType,
         ...headers,
       }
       body = JSON.stringify(body)
@@ -116,16 +95,12 @@ class Fxios {
     return promise
   }
 
-  get(
-    url: string | UrlParam,
-    query?: Query,
-    runtimeConfig: RequestInit = {},
-  ): Promise<any> {
+  get(url: Url, query?: Query, runtimeConfig: RequestInit = {}): Promise<any> {
     return this.request('get', url, undefined, query, runtimeConfig)
   }
 
   post(
-    url: string | UrlParam,
+    url: Url,
     body?: any,
     query?: Query,
     runtimeConfig: RequestInit = {},
@@ -134,7 +109,7 @@ class Fxios {
   }
 
   delete(
-    url: string | UrlParam,
+    url: Url,
     body?: any,
     query?: Query,
     runtimeConfig: RequestInit = {},
@@ -143,13 +118,11 @@ class Fxios {
   }
 
   put(
-    url: string | UrlParam,
+    url: Url,
     body?: any,
     query?: Query,
     runtimeConfig: RequestInit = {},
   ): Promise<any> {
-    return this.request('delete', url, body, query, runtimeConfig)
+    return this.request('put', url, body, query, runtimeConfig)
   }
 }
-
-export default Fxios

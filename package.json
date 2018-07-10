@@ -61,6 +61,7 @@
   "lint-staged": {
     "*.js": ["prettier --write", "git add"]
   },
+  "typings": "typings/index.d.ts",
   "jest": {
     "testEnvironment": "node",
     "testURL": "http://localhost",

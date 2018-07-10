@@ -1,4 +1,4 @@
-import Fxios from '../index.ts'
+import { Fxios, jsonType } from '../index.ts'
 import URL from 'url'
 // import fetch, { config } from '../example'
 // const fetchMock = require('fetch-mock')
@@ -19,17 +19,13 @@ const mockUrls = {
 const httpMethods = ['get', 'post', 'put', 'delete']
 
 describe('fetch', () => {
-  afterAll(() => {
+  beforeEach(() => {
     fetchMock.restore()
-  })
-
-  beforeAll(() => {
-    fetchMock.get(mockUrls.get, mockData.get)
-    fetchMock.post(mockUrls.post, mockData.post)
   })
 
   it('get方法，无intern.response，直接获取Response类型数据', () => {
     const fxios = new Fxios()
+    fetchMock.get(mockUrls.get, mockData.get)
     return fxios.get(mockUrls.get).then(res => {
       expect(res).toBeInstanceOf(Response)
       return res.json().then(d => {
@@ -43,25 +39,82 @@ describe('fetch', () => {
       const getWithRouterParam = '/get/superwf/edit/33'
       fetchMock[method](getWithRouterParam, mockData.get)
       const fxios = new Fxios()
-      return fxios
-        .get({ url: '/get/:name/edit/:id', param: { name: 'superwf', id: 33 } })
-        .then(res => {
-          expect(res).toBeInstanceOf(Response)
-          return res.text().then(d => {
-            expect(d).toEqual(JSON.stringify(mockData.get))
-          })
+      return fxios[method]({
+        url: '/get/:name/edit/:id',
+        param: { name: 'superwf', id: 33 },
+      }).then(res => {
+        expect(res).toBeInstanceOf(Response)
+        return res.text().then(d => {
+          expect(d).toEqual(JSON.stringify(mockData.get))
         })
-    })
-  })
-
-  it('get方法，测试res.text()', () => {
-    const fxios = new Fxios()
-    return fxios.get(mockUrls.get).then(res => {
-      expect(res).toBeInstanceOf(Response)
-      return res.text().then(d => {
-        expect(d).toEqual(JSON.stringify(mockData.get))
       })
     })
+
+    it(`${method}方法，测试url base`, () => {
+      const withBase = '/api/get'
+      fetchMock[method](withBase, mockData.get)
+      const fxios = new Fxios({ base: '/api' })
+      return fxios[method]('/get').then(res => {
+        expect(res).toBeInstanceOf(Response)
+      })
+    })
+
+    it(`${method}方法，测试res.text()`, () => {
+      const fxios = new Fxios()
+      fetchMock[method](mockUrls.get, mockData.get)
+      return fxios[method](mockUrls.get).then(res => {
+        expect(res).toBeInstanceOf(Response)
+        return res.text().then(d => {
+          expect(d).toEqual(JSON.stringify(mockData.get))
+        })
+      })
+    })
+
+    it(`${method}方法，测试定制headers`, () => {
+      const headers = {
+        'x-request': 'power',
+      }
+      const fxios = new Fxios({
+        request: {
+          headers,
+        },
+      })
+      fetchMock[method](mockUrls.get, mockData.get)
+      fxios.interceptor.request.push(req => {
+        expect(req.headers._headers).toEqual({
+          'x-request': ['power'],
+        })
+        return req
+      })
+      return fxios[method](mockUrls.get).then(res => {
+        expect(res).toBeInstanceOf(Response)
+      })
+    })
+
+    if (method !== 'get') {
+      it(`${method}方法，测试定制headers，与提交对象是自动添加的json header`, () => {
+        const headers = {
+          'x-request': 'power',
+        }
+        const fxios = new Fxios({
+          request: {
+            headers,
+          },
+        })
+        fetchMock[method](mockUrls.get, mockData.get)
+        fxios.interceptor.request.push(req => {
+          expect(req.headers._headers).toEqual({
+            'x-request': ['power'],
+            'content-type': [jsonType],
+          })
+          return req
+        })
+        const data = { name: 'abc' }
+        return fxios[method](mockUrls.get, data).then(res => {
+          expect(res).toBeInstanceOf(Response)
+        })
+      })
+    }
   })
 
   it('get方法，测试interceptor.request', () => {
@@ -86,6 +139,7 @@ describe('fetch', () => {
 
   it('get方法，通过interceptor处理数据', () => {
     const fxios = new Fxios()
+    fetchMock.get(mockUrls.get, mockData.get)
     fxios.interceptor.response.push((res, req) => {
       if (!res.ok) {
         const error = new Error(res.statusText)
@@ -102,9 +156,10 @@ describe('fetch', () => {
     })
   })
 
-  it('get方法，测试emitter', () => {
+  it('get方法，测试emitter', async () => {
     const spy = jest.fn()
     const fxios = new Fxios()
+    fetchMock.get(mockUrls.get, mockData.get)
     fxios.on('success', spy)
     fxios.interceptor.response.push((res, req) => {
       if (!res.ok) {
@@ -118,15 +173,19 @@ describe('fetch', () => {
         return data
       })
     })
-    return fxios.get(mockUrls.get).then(res => {
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy.mock.calls[0][0]).toEqual(mockData.get)
-    })
+    await fxios.get(mockUrls.get)
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0]).toEqual(mockData.get)
+
+    fxios.off('success', spy)
+    await fxios.get(mockUrls.get)
+    expect(spy).toHaveBeenCalledTimes(1)
   })
 
   it('post方法，测试post object', () => {
     const data = { name: '123' }
     const fxios = new Fxios()
+    fetchMock.post(mockUrls.post, mockData.post)
     return fxios.post(mockUrls.post, data).then(res => {
       const lastPost = fetchMock.lastCall()[0]
       expect(lastPost.body).toBe(JSON.stringify(data))
@@ -136,6 +195,7 @@ describe('fetch', () => {
   it('post方法，测试post string', () => {
     const data = 'abcdefaesdf'
     const fxios = new Fxios()
+    fetchMock.post(mockUrls.post, mockData.post)
     return fxios.post(mockUrls.post, data).then(res => {
       const lastPost = fetchMock.lastCall()[0]
       expect(lastPost.body).toBe(data)
@@ -145,6 +205,7 @@ describe('fetch', () => {
   it('post方法，测试post Buffer', () => {
     const data = new Buffer.alloc(8)
     const fxios = new Fxios()
+    fetchMock.post(mockUrls.post, mockData.post)
     return fxios.post(mockUrls.post, data).then(res => {
       const lastPost = fetchMock.lastCall()[0]
       expect(lastPost.body).toBe(data)

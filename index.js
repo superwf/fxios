@@ -1,4 +1,3 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const URL = require("url");
 const pathToRegexp = require("path-to-regexp");
@@ -25,13 +24,13 @@ exports.parseUrl = (url, query) => {
     return url;
 };
 class Fxios {
-    constructor(config = { base: '', request: exports.defaultConfig }) {
+    constructor(config = { request: exports.defaultConfig }) {
         this.interceptor = {
             request: [],
             response: [],
         };
         this.requestConfig = config.request || exports.defaultConfig;
-        this.config = config;
+        this.base = config.base || '';
         const emitter = new EventEmitter();
         // default max is 10
         // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
@@ -44,16 +43,18 @@ class Fxios {
     }
     request(method, url, body, query, runtimeConfig = {}) {
         const parsedUrl = exports.parseUrl(url, query);
-        const base = this.config.base;
+        const { base } = this;
         const request = Object.assign({}, this.requestConfig, { method }, runtimeConfig);
         let headers = request.headers || {};
         if (isPlainObject(body)) {
-            headers = Object.assign({ 'Content-Type': exports.jsonType }, headers);
+            request.headers = Object.assign({ 'content-type': exports.jsonType }, headers);
             body = JSON.stringify(body);
         }
         request.body = body;
-        const req = new Request(`${base}${parsedUrl}`, request);
-        console.log(req);
+        let req = new Request(`${base}${parsedUrl}`, request);
+        this.interceptor.request.forEach(cb => {
+            req = cb(req);
+        });
         let promise = fetch(req);
         this.interceptor.response.forEach(cb => {
             promise = promise.then(res => cb(res, request));
@@ -70,7 +71,7 @@ class Fxios {
         return this.request('delete', url, body, query, runtimeConfig);
     }
     put(url, body, query, runtimeConfig = {}) {
-        return this.request('delete', url, body, query, runtimeConfig);
+        return this.request('put', url, body, query, runtimeConfig);
     }
 }
-exports.default = Fxios;
+exports.Fxios = Fxios;

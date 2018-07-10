@@ -4,12 +4,13 @@
     "module": "commonjs",
     "target": "es6",
     "noImplicitAny": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
     "strictNullChecks": true,
-    "alwaysStrict": true,
     "preserveConstEnums": true,
     "sourceMap": false,
-    "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "noImplicitUseStrict": true,
     "lib": ["dom", "es2015", "es5", "es6"]
   }
 }
