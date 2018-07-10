@@ -1,8 +1,25 @@
 import * as URL from 'url'
 import * as pathToRegexp from 'path-to-regexp'
 import * as EventEmitter from 'events'
-import isPlainObject = require('lodash/isPlainObject')
-// import merge = require('lodash/merge')
+
+// copy from lodash
+function isPlainObject(value: any): boolean {
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    String(value) !== '[object Object]'
+  ) {
+    return false
+  }
+  if (Object.getPrototypeOf(value) === null) {
+    return true
+  }
+  let proto = Object.getPrototypeOf(value)
+  while (Object.getPrototypeOf(proto) !== null) {
+    proto = Object.getPrototypeOf(proto)
+  }
+  return Object.getPrototypeOf(value) === proto
+}
 
 export const defaultConfig: RequestInit = {
   credentials: 'include',

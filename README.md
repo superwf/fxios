@@ -1,11 +1,11 @@
-## Fetch Maker
+## Fxios
 
-### 定制fetch库的生成器，可根据不同配置生成符合每个项目的定制要求的fetch请求库
+### inspired by axios, use typescript
 
 ### 安装
 
 ```bash
-npm install fetch-maker
+npm install fxios
 ```
 
 启动项目时可能会提示babel的preset缺少react-app，先
