@@ -1,6 +1,7 @@
 import * as URL from 'url'
 import * as pathToRegexp from 'path-to-regexp'
 import * as EventEmitter from 'events'
+import isPlainObject = require('lodash/isPlainObject')
 // import merge = require('lodash/merge')
 
 export const defaultConfig: RequestInit = {
@@ -83,6 +84,7 @@ class Fxios {
   request(
     method: string,
     url: string | UrlParam,
+    body?: any,
     query?: Query,
     runtimeConfig: RequestInit = {},
   ): Promise<any> {
@@ -90,10 +92,23 @@ class Fxios {
     const base = this.config.base
     const request: RequestInit = {
       ...this.requestConfig,
-      method: 'get',
+      method,
       ...runtimeConfig,
     }
-    let promise: Promise<any> = fetch(`${base}${parsedUrl}`, request)
+    let headers: HeadersInit = request.headers || {}
+    if (isPlainObject(body)) {
+      headers = {
+        'Content-Type': jsonType,
+        ...headers,
+      }
+      body = JSON.stringify(body)
+    }
+    request.body = body
+    let req: Request = new Request(`${base}${parsedUrl}`, request)
+    this.interceptor.request.forEach(cb => {
+      req = cb(req)
+    })
+    let promise = fetch(req)
 
     this.interceptor.response.forEach(cb => {
       promise = promise.then(res => cb(res, request))
@@ -106,50 +121,34 @@ class Fxios {
     query?: Query,
     runtimeConfig: RequestInit = {},
   ): Promise<any> {
-    return this.request('get', url, query, runtimeConfig)
-  }
-
-  requestWithBody(
-    method: string,
-    url: string | UrlParam,
-    data?: any,
-    query?: Query,
-    runtimeConfig: RequestInit = {},
-  ): Promise<any> {
-    const parsedUrl = parseUrl(url, query)
-    const base = this.config.base
-    const request: RequestInit = {
-      ...this.requestConfig,
-      method: 'post',
-      ...runtimeConfig,
-    }
-    let headers: HeadersInit = request.headers || {}
-    let body: any
-    if (typeof data === 'object') {
-      headers = {
-        'Content-Type': jsonType,
-        ...headers,
-      }
-      body = JSON.stringify(data)
-    } else {
-      body = data
-    }
-    request.body = body
-    let promise = fetch(`${base}${parsedUrl}`, request)
-
-    this.interceptor.response.forEach(cb => {
-      promise = promise.then(res => cb(res, request))
-    })
-    return promise
+    return this.request('get', url, undefined, query, runtimeConfig)
   }
 
   post(
     url: string | UrlParam,
-    data?: any,
+    body?: any,
     query?: Query,
     runtimeConfig: RequestInit = {},
   ): Promise<any> {
-    return this.requestWithBody('post', url, data, query, runtimeConfig)
+    return this.request('post', url, body, query, runtimeConfig)
+  }
+
+  delete(
+    url: string | UrlParam,
+    body?: any,
+    query?: Query,
+    runtimeConfig: RequestInit = {},
+  ): Promise<any> {
+    return this.request('delete', url, body, query, runtimeConfig)
+  }
+
+  put(
+    url: string | UrlParam,
+    body?: any,
+    query?: Query,
+    runtimeConfig: RequestInit = {},
+  ): Promise<any> {
+    return this.request('delete', url, body, query, runtimeConfig)
   }
 }
 
