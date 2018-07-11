@@ -50,8 +50,9 @@ config is an object that
 | on | string, function | eventName, Function(...args) 监听函数，参数由emit发射出去的决定 |
 | off | string, function | eventName, func，移除eventName事件队列中的该监听函数 |
 | emit | string, [any] | eventName, 任何想要发射的数据，可多个 |
-| interceptor.request.push | cb: (req: Request) => Request | 在请求前拦截request对象 [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)对象 |
-| interceptor.response.push | cb: (res: Response, req: Request) => Request | 处理返回后的response对象 [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)对象 |
+| interceptor.request[] | cb: (req: Request) => Request | 在请求前拦截request对象 [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)对象 |
+| interceptor.response[] | cb: (res: Response, req: Request) => Request | 处理返回后的response对象 [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)对象 |
+| interceptor.response.catch[] | cb: (err: Error, req: Request) => Request | 处理fetch错误。若有多个catch处理函数，第一个catch error之后若想后面的函数继续执行则需要再throw error |
 
 #### interceptor
 
@@ -59,7 +60,7 @@ config is an object that
 interceptor.request与interceptor.response都是纯数组，成员是函数
 interceptor.request的每个函数必须返回处理过的request对象。
 interceptor.response的第一个函数接收的是fetch返回的Response对象和本次请求的Request对象。之后的函数的第一个参数都是上一个函数的返回值，第二个参数为Request对象不变。
-
+interceptor.catch的第一个参数是抛出的error，第二个参数为Request对象不变。
 
 ### 实例属性
 

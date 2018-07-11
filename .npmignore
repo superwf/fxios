@@ -6,3 +6,4 @@ prettier.config.js
 example.js
 rollup.config.js
 .gitignore
+coverage

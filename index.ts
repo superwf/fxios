@@ -57,6 +57,7 @@ export class Fxios {
   interceptor: Interceptor = {
     request: [],
     response: [],
+    catch: [],
   }
   on: (event: string, listener: (data?: any) => void) => EventEmitter
   off: (event: string, listener: (data?: any) => void) => EventEmitter
@@ -110,7 +111,11 @@ export class Fxios {
     let promise = fetch(req)
 
     this.interceptor.response.forEach(cb => {
-      promise = promise.then(res => cb(res, request))
+      promise = promise.then(res => cb(res, req))
+    })
+
+    this.interceptor.catch.forEach(cb => {
+      promise = promise.catch(err => cb(err, req))
     })
     return promise
   }

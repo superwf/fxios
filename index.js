@@ -55,6 +55,7 @@ class Fxios {
         this.interceptor = {
             request: [],
             response: [],
+            catch: [],
         };
         const { base } = config, requestConfig = __rest(config, ["base"]);
         this.config = Object.assign({}, exports.defaultRequestConfig, requestConfig);
@@ -85,7 +86,10 @@ class Fxios {
         });
         let promise = fetch(req);
         this.interceptor.response.forEach(cb => {
-            promise = promise.then(res => cb(res, request));
+            promise = promise.then(res => cb(res, req));
+        });
+        this.interceptor.catch.forEach(cb => {
+            promise = promise.catch(err => cb(err, req));
         });
         return promise;
     }

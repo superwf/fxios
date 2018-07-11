@@ -249,4 +249,22 @@ describe('fetch', () => {
       expect(lastPost.body).toBe(data)
     })
   })
+
+  it('interceptor.catch', done => {
+    const fxios = new Fxios()
+    fxios.interceptor.catch.push((err, req) => {
+      expect(err).toBeInstanceOf(Error)
+      expect(req).toBeInstanceOf(Request)
+      done()
+    })
+    fxios.interceptor.response.push((res, req) => {
+      if (res.status !== 200) {
+        throw new Error(res.status)
+      }
+    })
+    const init = { status: 404 }
+    const res = new Response([], init)
+    fetchMock.get(mockUrls.get, res)
+    fxios.get(mockUrls.get)
+  })
 })
