@@ -1,7 +1,7 @@
 {
   "name": "fxios",
   "version": "0.1.0",
-  "description": "fetch generator customize",
+  "description": "ajax fetch axios",
   "main": "index.js",
   "module": "dist/index.module.js",
   "scripts": {
@@ -15,11 +15,7 @@
     "type": "git",
     "url": "git@git.jd.com:wangfan15/fetch-maker.git"
   },
-  "keywords": [
-    "ajax",
-    "fetch",
-    "request"
-  ],
+  "keywords": ["ajax", "fetch", "axios"],
   "author": "superwf@gmail.com",
   "license": "ISC",
   "dependencies": {
@@ -58,33 +54,19 @@
     "typescript-eslint-parser": "^16.0.1"
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.js": ["prettier --write", "git add"]
   },
   "typings": "typings/index.d.ts",
   "jest": {
     "testEnvironment": "node",
     "testURL": "http://localhost",
-    "collectCoverageFrom": [
-      "index.ts"
-    ],
-    "setupFiles": [
-      "./jest.setup.js"
-    ],
+    "collectCoverageFrom": ["index.ts"],
+    "setupFiles": ["./jest.setup.js"],
     "transform": {
       "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest",
       "^.+\\.(t|j)sx?$": "ts-jest"
     },
     "testRegex": "(/__test__/.*(test|spec))\\.(j|t)sx?$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   }
 }
