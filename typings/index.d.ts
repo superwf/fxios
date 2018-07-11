@@ -1,7 +1,7 @@
 // 作为路由参数的url
 interface UrlWithRouterParam {
   url: string
-  param: string
+  param?: string
 }
 
 type Url = string | UrlWithRouterParam

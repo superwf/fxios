@@ -66,6 +66,19 @@ describe('fetch', () => {
       })
     })
 
+    it(`${method}方法，测试路由函数，param可为空值`, () => {
+      fetchMock[method](mockUrls.get, mockData.get)
+      const fxios = new Fxios()
+      return fxios[method]({
+        url: mockUrls.get,
+      }).then(res => {
+        expect(res).toBeInstanceOf(Response)
+        return res.text().then(d => {
+          expect(d).toEqual(JSON.stringify(mockData.get))
+        })
+      })
+    })
+
     it(`${method}方法，测试url base`, () => {
       const withBase = '/api/get'
       fetchMock[method](withBase, mockData.get)
