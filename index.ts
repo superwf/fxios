@@ -53,7 +53,6 @@ export const parseUrl = (url: Url, query?: Query): string => {
 }
 
 export class Fxios {
-  config: FxiosConfig
   base: string
   interceptor: Interceptor = {
     request: [],
@@ -64,11 +63,11 @@ export class Fxios {
   emit: (event: string) => boolean
   emitter: EventEmitter
 
-  requestConfig: RequestInit
+  config: RequestInit
 
   constructor(config: FxiosConfig = defaultRequestConfig) {
     const { base, ...requestConfig } = config
-    this.requestConfig = { ...defaultRequestConfig, ...requestConfig }
+    this.config = { ...defaultRequestConfig, ...requestConfig }
     this.base = base || ''
     const emitter = new EventEmitter()
     // default max is 10
@@ -91,7 +90,7 @@ export class Fxios {
     const parsedUrl = parseUrl(url, query)
     const { base } = this
     const request: RequestInit = {
-      ...this.requestConfig,
+      ...this.config,
       method,
       ...runtimeConfig,
     }
@@ -105,7 +104,6 @@ export class Fxios {
     }
     request.body = body
     let req: Request = new Request(`${base}${parsedUrl}`, request)
-    // console.log(request, req)
     this.interceptor.request.forEach(cb => {
       req = cb(req)
     })

@@ -57,7 +57,7 @@ class Fxios {
             response: [],
         };
         const { base } = config, requestConfig = __rest(config, ["base"]);
-        this.requestConfig = Object.assign({}, exports.defaultRequestConfig, requestConfig);
+        this.config = Object.assign({}, exports.defaultRequestConfig, requestConfig);
         this.base = base || '';
         const emitter = new EventEmitter();
         // default max is 10
@@ -72,7 +72,7 @@ class Fxios {
     request(method, url, body, query, runtimeConfig = {}) {
         const parsedUrl = exports.parseUrl(url, query);
         const { base } = this;
-        const request = Object.assign({}, this.requestConfig, { method }, runtimeConfig);
+        const request = Object.assign({}, this.config, { method }, runtimeConfig);
         let headers = request.headers || {};
         if (isPlainObject(body)) {
             request.headers = Object.assign({ 'content-type': exports.jsonType }, headers);
@@ -80,7 +80,6 @@ class Fxios {
         }
         request.body = body;
         let req = new Request(`${base}${parsedUrl}`, request);
-        // console.log(request, req)
         this.interceptor.request.forEach(cb => {
             req = cb(req);
         });

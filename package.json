@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@git.jd.com:wangfan15/fetch-maker.git"
+    "url": "https://github.com/superwf/fxios.git"
   },
   "keywords": ["ajax", "fetch", "axios"],
   "author": "superwf@gmail.com",
