@@ -66,9 +66,10 @@ export class Fxios {
 
   requestConfig: RequestInit
 
-  constructor(config: FxiosConfig = { request: defaultRequestConfig }) {
-    this.requestConfig = config.request || defaultRequestConfig
-    this.base = config.base || ''
+  constructor(config: FxiosConfig = defaultRequestConfig) {
+    const { base, ...requestConfig } = config
+    this.requestConfig = { ...defaultRequestConfig, ...requestConfig }
+    this.base = base || ''
     const emitter = new EventEmitter()
     // default max is 10
     // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n

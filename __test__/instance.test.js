@@ -90,11 +90,7 @@ describe('fetch', () => {
       const headers = {
         'x-request': 'power',
       }
-      const fxios = new Fxios({
-        request: {
-          headers,
-        },
-      })
+      const fxios = new Fxios({ headers })
       fetchMock[method](mockUrls.get, mockData.get)
       fxios.interceptor.request.push(req => {
         expect(req.headers._headers).toEqual({
@@ -112,11 +108,7 @@ describe('fetch', () => {
         const headers = {
           'x-request': 'power',
         }
-        const fxios = new Fxios({
-          request: {
-            headers,
-          },
-        })
+        const fxios = new Fxios({ headers })
         fetchMock[method](mockUrls.get, mockData.get)
         fxios.interceptor.request.push(req => {
           expect(req.headers._headers).toEqual({

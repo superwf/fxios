@@ -12,9 +12,8 @@ interface Query {
 }
 
 // 实例化的配置参数
-interface FxiosConfig {
+interface FxiosConfig extends RequestInit {
   base?: string
-  request?: RequestInit
 }
 
 // 实例化的配置参数

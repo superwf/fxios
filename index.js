@@ -1,3 +1,12 @@
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const URL = require("url");
 const pathToRegexp = require("path-to-regexp");
@@ -42,13 +51,14 @@ exports.parseUrl = (url, query) => {
     return url;
 };
 class Fxios {
-    constructor(config = { request: exports.defaultRequestConfig }) {
+    constructor(config = exports.defaultRequestConfig) {
         this.interceptor = {
             request: [],
             response: [],
         };
-        this.requestConfig = config.request || exports.defaultRequestConfig;
-        this.base = config.base || '';
+        const { base } = config, requestConfig = __rest(config, ["base"]);
+        this.requestConfig = Object.assign({}, exports.defaultRequestConfig, requestConfig);
+        this.base = base || '';
         const emitter = new EventEmitter();
         // default max is 10
         // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
