@@ -33,7 +33,7 @@ describe('fetch', () => {
       this.a = 'a'
     }
     expect(isPlainObject(new Foo())).toBe(false)
-    expect(isPlainObject([1, 2, 3])).toBe(false)
+    expect(isPlainObject([1, 2, 3])).toBe(true)
     expect(isPlainObject({ x: 1, y: 2 })).toBe(true)
     expect(isPlainObject(Object.create(null))).toBe(true)
     expect(isPlainObject(Object.create({ a: 1 }))).toBe(false)

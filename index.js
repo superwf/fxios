@@ -16,7 +16,7 @@ function isPlainObject(value) {
     if (value === undefined || value === null) {
         return false;
     }
-    if (Object.getPrototypeOf(value) === null) {
+    if (Object.getPrototypeOf(value) === null || Array.isArray(value)) {
         return true;
     }
     if (typeof value !== 'object' ||
