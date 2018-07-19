@@ -52,33 +52,25 @@ export const parseUrl = (url: Url, query?: Query): string => {
   return url
 }
 
-export class Fxios {
+export class Fxios extends EventEmitter {
   base: string
   interceptor: Interceptor = {
     request: [],
     response: [],
     catch: [],
   }
-  on: (event: string, listener: (data?: any) => void) => EventEmitter
-  off: (event: string, listener: (data?: any) => void) => EventEmitter
-  emit: (event: string) => boolean
-  emitter: EventEmitter
 
   config: RequestInit
 
   constructor(config: FxiosConfig = defaultRequestConfig) {
+    super()
     const { base, ...requestConfig } = config
     this.config = { ...defaultRequestConfig, ...requestConfig }
     this.base = base || ''
-    const emitter = new EventEmitter()
     // default max is 10
     // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
     // 1000 should be enough
-    emitter.setMaxListeners(1000)
-    this.on = emitter.on.bind(emitter)
-    this.off = emitter.removeListener.bind(emitter)
-    this.emit = emitter.emit.bind(emitter)
-    this.emitter = emitter
+    this.setMaxListeners(1000)
   }
 
   request(
