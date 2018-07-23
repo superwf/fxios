@@ -1,44 +1,35 @@
-import Fetch from './index'
+import { Fxios } from 'fxios'
 
-export const config = {
-  credentials: 'include',
-  redirect: 'manual',
-  mode: 'cors',
-  cache: 'reload',
-}
+const fxios = new Fxios()
 
-export const makeFetch = config => {
-  const fetch = Fetch(config)
-
-  const useThen = res => {
-    if (!res.ok) {
-      const error = new Error(res.statusText)
-      error.response = res
-      throw error
-    }
-    return res.json().then(data => {
-      if (data.code === 'success') {
-        fetch.emit('success', res)
-        return data
-      } else {
-        const error = new Error(data.message)
-        error.code = data.code
-        error.response = res
-        throw error
+fxios.interceptor.response.push((res, req) => {
+  if (!res.ok) {
+    const error = new Error(res.statusText)
+    error.response = res
+    throw error
+  }
+  return res.json().then(data => {
+    if (data.code === 'success') {
+      res.message = data.message
+      if (req.method !== 'GET') {
+        fxios.emit('success', res, req)
       }
-    })
-  }
-
-  fetch.useThen(useThen)
-
-  const useCatch = error => {
-    // 若emitter没有监听函数直接emit一个error，会抛出错误不执行下面的throw error
-    if (fetch.emitter.listeners('error').length > 0) {
-      fetch.emit('error', error)
+      return data
     }
-  }
-  fetch.useCatch(useCatch)
-  return fetch
-}
+    const error = new Error(data.message)
+    error.code = data.code
+    error.response = res
+    throw error
+  })
+})
 
-export default makeFetch(config)
+const fxiosCatch = error => {
+  // when no listener for an event, it will throw an error.
+  if (fxios.listeners('error').length > 0) {
+    fxios.emit('error', error)
+  }
+  throw error
+}
+fxios.interceptor.catch.push(fxiosCatch)
+
+export default fxios

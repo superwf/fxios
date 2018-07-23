@@ -1,73 +1,127 @@
 ## Fxios
 
-### inspired by axios, use typescript
+##### inspired by axios, use typescript
 
-### 安装
+### Install
 
 ```bash
 npm install fxios
 ```
 
-启动项目时可能会提示babel的preset缺少react-app，先
-```bash
-npm i babel-preset-react-app -D
+
+#### example or see [example.js](https://github.com/superwf/fxios/blob/master/example.js)
+```
+const fxios = new Fxios()
+async function createUser() {
+  const result = await fxios.post('/api/user')
+  return result
+}
 ```
 
-### 例子 参见当前项目中的example.js
+### Usage
 
-### 使用方法
-
-### API
+#### API
 
 ```js
 import { Fxios } from 'fxios'
 const instance = new Fxios()
 ```
 
-config通常配置
+default new config
 ```js
 {
   base: '/api', // like axios baseURL, default is ''
-  // other param for the fetch default param，除了base，其他项都必须是原生fetch可接受的参数
-  // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+  // other param for the fetch default param
+  // expect base，other param must be acceptable for origin window.fetch
+  // see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
   credentials: 'include',
   redirect: 'manual',
   mode: 'cors',
   cache: 'reload',
 }
 ```
+the default config will be merged with your config
+
 
 #### new Fxios(config)
+| method | param |
+|---|---|
+| get | [URL Object](#url-object),<br>query object, optional,<br>[runtimeConfig](#runtimeconfig) optional|
+| post | [URL Object](#url-object),<br>[body](#request-body): string or object<br>query object, optional,<br>[runtimeConfig](#runtimeconfig) optional |
+| delete | same as post |
+| put | same as post |
 
-config is an object that
+#### URL Object
 
-#### 实例方法
-| 方法 | 参数 | 说明 |
-|---|---|---|
-| get | string url请求地址<br /> [query][Object&#124;String]，url上的query对象或字符串，如{abc: 'def'}或'abc=def'，以下所有query参数说明相同<br> [runtimeConfig] 发生请求时的fetch的config, 会与配置的config合并生效 |
-| post | url请求地址, data, [query] | url, Object, [Object|String], [runtimeConfig] |
-| delete, put | same as post |
-| on | string, function | eventName, Function(...args) 监听函数，参数由emit发射出去的决定 |
-| off | string, function | eventName, func，移除eventName事件队列中的该监听函数 |
-| emit | string, [any] | eventName, 任何想要发射的数据，可多个 |
-| interceptor.request[] | cb: (req: Request) => Request | 在请求前拦截request对象 [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)对象 |
-| interceptor.response[] | cb: (res: Response, req: Request) => Request | 处理返回后的response对象 [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)对象 |
-| interceptor.response.catch[] | cb: (err: Error, req: Request) => Request | 处理fetch错误。若有多个catch处理函数，第一个catch error之后若想后面的函数继续执行则需要再throw error |
+the url object could be a string, like '/api/user/124/edit'
+or sometimes the router param need be inserted at run time, then it could be an object like
+```
+{
+  url: '/api/user/:id/edit',
+  param: {
+    id: '124'
+  }
+}
+```
+it will be converted to '/api/user/124/edit' before request.
 
-#### interceptor
+#### Request body
+ArrayBuffer | ArrayBufferView | NodeJS.ReadableStream | string | URLSearchParams
 
-参照了axios的interceptor接口
-interceptor.request与interceptor.response都是纯数组，成员是函数
-interceptor.request的每个函数必须返回处理过的request对象。
-interceptor.response的第一个函数接收的是fetch返回的Response对象和本次请求的Request对象。之后的函数的第一个参数都是上一个函数的返回值，第二个参数为Request对象不变。
-interceptor.catch的第一个参数是抛出的error，第二个参数为Request对象不变。
+#### RuntimeConfig
+runtimeConfig object, all property must be acceptable for origin window.fetch
+see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+for example
+```
+{
+  credentials: 'include',
+  redirect: 'manual',
+  mode: 'cors',
+  cache: 'reload',
+  ...
+}
+```
+all config will be merged with the config when `new Fxios(config)`. if no instance config, the default config will work.
 
-### 实例属性
+#### Interceptor
 
-| 名称 | 说明 |
-|---|---|---|
-| base | 生成实例对象时传入的config的base, 可随时更改，更改后在下一个请求立即生效 |
-| config | 生成实例对象时传入的config除base外的其他属性，必须是fetch可接收的属性 |
-| emitter | 一个EveitEmitter对象实例，fetch的on, off，emit都是emitter的方法，也可直接调用emitter的方法 |
+Inspired by axios interceptor.
+All Fxios interceptors are only javascript array, use push method to add new interceptor.
+For example:
+```
+fxios.interceptor.request.push(function(request) {...})
+fxios.interceptor.response.push(function(response, request) {...})
+fxios.interceptor.catch.push(function(error, request) {...})
+```
 
-emitter可直接参考nodejs的[events api](https://nodejs.org/api/events.html)
+`interceptor.request` is an array, each member function sign is
+```
+type RequestCallback = (res: Request) => Request
+```
+See [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
+
+`interceptor.request` is an array, each member function sign is
+```
+type ResponseCallback = (res: any, req: Request) => any
+```
+The first response callback accept the origin fetch Response object, and the latter function will accept the result returned by the previes one.
+The second Request param will not change.
+See [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+
+`interceptor.catch` is an array, each member function sign is
+```
+type CatchCallback = (err: Error, req: Request) => any
+```
+
+#### EventEmitter
+Fxios extends the nodejs EventEmitter api
+So it has all the EventEmitter api,
+If you would like to know more, please read [EventEmitter api](https://nodejs.org/api/events.html)
+here is some methods example
+The event methods could be used when request succeed or failed, to tell the ui to show something.
+
+| method | param |
+|---|---|
+| on | event name: string, callback: function |
+| off | event name: string, callback: function |
+| emit | string, [any] |
