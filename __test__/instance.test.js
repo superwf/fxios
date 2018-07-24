@@ -21,7 +21,7 @@ const mockUrls = {
   post: '/post',
 }
 
-const httpMethods = ['get', 'post', 'put', 'delete']
+const httpMethods = ['get', 'post', 'put', 'delete', 'patch']
 
 describe('fetch', () => {
   beforeEach(() => {
@@ -279,5 +279,15 @@ describe('fetch', () => {
     const res = new Response([], init)
     fetchMock.get(mockUrls.get, res)
     fxios.get(mockUrls.get)
+  })
+
+  it('head请求', () => {
+    const fxios = new Fxios()
+    fetchMock.head(mockUrls.get, mockData.get)
+    return fxios.head(mockUrls.get).then(res => {
+      return res.json().then(json => {
+        expect(json).toEqual(mockData.get)
+      })
+    })
   })
 })

@@ -8,6 +8,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/// <reference path="typings/index.d.ts" />
 const URL = require("url");
 const pathToRegexp = require("path-to-regexp");
 const EventEmitter = require("events");
@@ -92,6 +93,15 @@ class Fxios extends EventEmitter {
     get(url, query, runtimeConfig) {
         return this.request('get', url, undefined, query, runtimeConfig);
     }
+    head(url, query, runtimeConfig) {
+        return this.request('head', url, undefined, query, runtimeConfig);
+    }
+    // options(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
+    //   return this.request('options', url, undefined, query, runtimeConfig)
+    // }
+    // trace(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
+    //   return this.request('trace', url, undefined, query, runtimeConfig)
+    // }
     post(url, body, query, runtimeConfig) {
         return this.request('post', url, body, query, runtimeConfig);
     }
@@ -100,6 +110,9 @@ class Fxios extends EventEmitter {
     }
     put(url, body, query, runtimeConfig) {
         return this.request('put', url, body, query, runtimeConfig);
+    }
+    patch(url, body, query, runtimeConfig) {
+        return this.request('patch', url, body, query, runtimeConfig);
     }
 }
 exports.Fxios = Fxios;

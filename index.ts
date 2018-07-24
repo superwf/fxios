@@ -1,3 +1,4 @@
+/// <reference path="typings/index.d.ts" />
 import * as URL from 'url'
 import * as pathToRegexp from 'path-to-regexp'
 import * as EventEmitter from 'events'
@@ -116,6 +117,18 @@ export class Fxios extends EventEmitter {
     return this.request('get', url, undefined, query, runtimeConfig)
   }
 
+  head(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
+    return this.request('head', url, undefined, query, runtimeConfig)
+  }
+
+  // options(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
+  //   return this.request('options', url, undefined, query, runtimeConfig)
+  // }
+
+  // trace(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
+  //   return this.request('trace', url, undefined, query, runtimeConfig)
+  // }
+
   post(
     url: Url,
     body?: any,
@@ -141,5 +154,14 @@ export class Fxios extends EventEmitter {
     runtimeConfig?: RequestInit,
   ): Promise<any> {
     return this.request('put', url, body, query, runtimeConfig)
+  }
+
+  patch(
+    url: Url,
+    body?: any,
+    query?: Query,
+    runtimeConfig?: RequestInit,
+  ): Promise<any> {
+    return this.request('patch', url, body, query, runtimeConfig)
   }
 }

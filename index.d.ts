@@ -1,3 +1,4 @@
+/// <reference path="typings/index.d.ts" />
 /// <reference types="node" />
 import * as EventEmitter from 'events';
 export declare function isPlainObject(value: any): boolean;
@@ -11,7 +12,9 @@ export declare class Fxios extends EventEmitter {
     constructor(config?: FxiosConfig);
     request(method: string, url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
     get(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
+    head(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
     post(url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
     delete(url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
     put(url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
+    patch(url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
 }
