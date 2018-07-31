@@ -66,6 +66,22 @@ describe('fetch', () => {
       })
     })
 
+    it(`fxios.${method}方法已与fxios绑定，可以不被fxios调用单独执行，效果不变`, () => {
+      const getWithRouterParam = '/get/superwf/edit/33'
+      fetchMock[method](getWithRouterParam, mockData.get)
+      const fxios = new Fxios()
+      const request = fxios[method]
+      return request({
+        url: '/get/:name/edit/:id',
+        param: { name: 'superwf', id: 33 },
+      }).then(res => {
+        expect(res).toBeInstanceOf(Response)
+        return res.text().then(d => {
+          expect(d).toEqual(JSON.stringify(mockData.get))
+        })
+      })
+    })
+
     it(`${method}方法，测试路由函数，param可为空值`, () => {
       fetchMock[method](mockUrls.get, mockData.get)
       const fxios = new Fxios()

@@ -50,6 +50,14 @@ the default config will be merged with your config
 | post | [URL Object](#url-object),<br>[body](#request-body): string or object<br>query object, optional,<br>[runtimeConfig](#runtimeconfig) optional |
 | delete | same as post |
 | put | same as post |
+| patch | same as post |
+
+each method has already bound to the instance, so
+```
+fxios.get(...)
+const get = fxios.get
+get(...) // same as fxios.get
+```
 
 #### URL Object
 

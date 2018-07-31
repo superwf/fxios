@@ -62,6 +62,12 @@ export class Fxios extends EventEmitter {
   }
 
   config: RequestInit
+  get: RequestWithoutBody
+  head: RequestWithoutBody
+  post: RequestWithBody
+  put: RequestWithBody
+  delete: RequestWithBody
+  patch: RequestWithBody
 
   constructor(config: FxiosConfig = defaultRequestConfig) {
     super()
@@ -72,6 +78,45 @@ export class Fxios extends EventEmitter {
     // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
     // 1000 should be enough
     this.setMaxListeners(1000)
+
+    this.get = (
+      url: Url,
+      query?: Query,
+      runtimeConfig?: RequestInit,
+    ): Promise<any> => this.request('get', url, undefined, query, runtimeConfig)
+
+    this.head = (
+      url: Url,
+      query?: Query,
+      runtimeConfig?: RequestInit,
+    ): Promise<any> =>
+      this.request('head', url, undefined, query, runtimeConfig)
+
+    this.post = (
+      url: Url,
+      body?: any,
+      query?: Query,
+      runtimeConfig?: RequestInit,
+    ): Promise<any> => this.request('post', url, body, query, runtimeConfig)
+
+    this.put = (
+      url: Url,
+      body?: any,
+      query?: Query,
+      runtimeConfig?: RequestInit,
+    ): Promise<any> => this.request('put', url, body, query, runtimeConfig)
+    this.patch = (
+      url: Url,
+      body?: any,
+      query?: Query,
+      runtimeConfig?: RequestInit,
+    ): Promise<any> => this.request('patch', url, body, query, runtimeConfig)
+    this.delete = (
+      url: Url,
+      body?: any,
+      query?: Query,
+      runtimeConfig?: RequestInit,
+    ): Promise<any> => this.request('delete', url, body, query, runtimeConfig)
   }
 
   request(
@@ -113,14 +158,6 @@ export class Fxios extends EventEmitter {
     return promise
   }
 
-  get(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
-    return this.request('get', url, undefined, query, runtimeConfig)
-  }
-
-  head(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
-    return this.request('head', url, undefined, query, runtimeConfig)
-  }
-
   // options(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
   //   return this.request('options', url, undefined, query, runtimeConfig)
   // }
@@ -128,40 +165,4 @@ export class Fxios extends EventEmitter {
   // trace(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
   //   return this.request('trace', url, undefined, query, runtimeConfig)
   // }
-
-  post(
-    url: Url,
-    body?: any,
-    query?: Query,
-    runtimeConfig?: RequestInit,
-  ): Promise<any> {
-    return this.request('post', url, body, query, runtimeConfig)
-  }
-
-  delete(
-    url: Url,
-    body?: any,
-    query?: Query,
-    runtimeConfig?: RequestInit,
-  ): Promise<any> {
-    return this.request('delete', url, body, query, runtimeConfig)
-  }
-
-  put(
-    url: Url,
-    body?: any,
-    query?: Query,
-    runtimeConfig?: RequestInit,
-  ): Promise<any> {
-    return this.request('put', url, body, query, runtimeConfig)
-  }
-
-  patch(
-    url: Url,
-    body?: any,
-    query?: Query,
-    runtimeConfig?: RequestInit,
-  ): Promise<any> {
-    return this.request('patch', url, body, query, runtimeConfig)
-  }
 }

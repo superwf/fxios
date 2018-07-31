@@ -66,6 +66,11 @@ class Fxios extends EventEmitter {
         // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
         // 1000 should be enough
         this.setMaxListeners(1000);
+        this.get = (url, query, runtimeConfig) => this.request('get', url, undefined, query, runtimeConfig);
+        this.head = (url, query, runtimeConfig) => this.request('head', url, undefined, query, runtimeConfig);
+        this.post = (url, body, query, runtimeConfig) => this.request('post', url, body, query, runtimeConfig);
+        this.put = (url, body, query, runtimeConfig) => this.request('put', url, body, query, runtimeConfig);
+        this.patch = (url, body, query, runtimeConfig) => this.request('patch', url, body, query, runtimeConfig);
     }
     request(method, url, body, query, runtimeConfig = {}) {
         const parsedUrl = exports.parseUrl(url, query);
@@ -89,30 +94,6 @@ class Fxios extends EventEmitter {
             promise = promise.catch(err => cb(err, req));
         });
         return promise;
-    }
-    get(url, query, runtimeConfig) {
-        return this.request('get', url, undefined, query, runtimeConfig);
-    }
-    head(url, query, runtimeConfig) {
-        return this.request('head', url, undefined, query, runtimeConfig);
-    }
-    // options(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
-    //   return this.request('options', url, undefined, query, runtimeConfig)
-    // }
-    // trace(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
-    //   return this.request('trace', url, undefined, query, runtimeConfig)
-    // }
-    post(url, body, query, runtimeConfig) {
-        return this.request('post', url, body, query, runtimeConfig);
-    }
-    delete(url, body, query, runtimeConfig) {
-        return this.request('delete', url, body, query, runtimeConfig);
-    }
-    put(url, body, query, runtimeConfig) {
-        return this.request('put', url, body, query, runtimeConfig);
-    }
-    patch(url, body, query, runtimeConfig) {
-        return this.request('patch', url, body, query, runtimeConfig);
     }
 }
 exports.Fxios = Fxios;

@@ -9,12 +9,12 @@ export declare class Fxios extends EventEmitter {
     base: string;
     interceptor: Interceptor;
     config: RequestInit;
+    get: RequestWithoutBody;
+    head: RequestWithoutBody;
+    post: RequestWithBody;
+    put: RequestWithBody;
+    delete: RequestWithBody;
+    patch: RequestWithBody;
     constructor(config?: FxiosConfig);
     request(method: string, url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
-    get(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
-    head(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
-    post(url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
-    delete(url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
-    put(url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
-    patch(url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
 }

@@ -27,3 +27,17 @@ interface Interceptor {
   response: ResponseCallback[]
   catch: CatchCallback[]
 }
+
+// get, head method
+type RequestWithoutBody = (
+  url: Url,
+  query?: Query,
+  runtimeConfig?: RequestInit,
+) => Promise<any>
+// post put delete patch method
+type RequestWithBody = (
+  url: Url,
+  body?: any,
+  query?: Query,
+  runtimeConfig?: RequestInit,
+) => Promise<any>
