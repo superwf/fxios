@@ -71,6 +71,7 @@ class Fxios extends EventEmitter {
         this.post = (url, body, query, runtimeConfig) => this.request('post', url, body, query, runtimeConfig);
         this.put = (url, body, query, runtimeConfig) => this.request('put', url, body, query, runtimeConfig);
         this.patch = (url, body, query, runtimeConfig) => this.request('patch', url, body, query, runtimeConfig);
+        this.delete = (url, body, query, runtimeConfig) => this.request('delete', url, body, query, runtimeConfig);
     }
     request(method, url, body, query, runtimeConfig = {}) {
         const parsedUrl = exports.parseUrl(url, query);
