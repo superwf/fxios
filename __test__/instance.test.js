@@ -6,7 +6,6 @@ import {
 } from '../index.ts'
 import URL from 'url'
 // import fetch, { config } from '../example'
-// const fetchMock = require('fetch-mock')
 import fetchMock from 'fetch-mock'
 
 // const noop = () => {}

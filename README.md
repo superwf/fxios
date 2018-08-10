@@ -1,6 +1,9 @@
 ## Fxios
 
-##### inspired by axios, use typescript
+### Introduction
+
+##### inspired by axios, build with typescript
+##### fxios = fetch + axios
 
 ### Install
 
@@ -9,14 +12,15 @@ npm install fxios
 ```
 
 
-#### example or see [example.js](https://github.com/superwf/fxios/blob/master/example.js)
+#### example
 ```
 const fxios = new Fxios()
 async function createUser() {
-  const result = await fxios.post('/api/user')
+  const result = await fxios.post('/api/user', { name: 'abc' })
   return result
 }
 ```
+More detail see [example.js](https://github.com/superwf/fxios/blob/master/example.js)
 
 ### Usage
 
@@ -32,7 +36,7 @@ default new config
 {
   base: '/api', // like axios baseURL, default is ''
   // other param for the fetch default param
-  // expect base，other param must be acceptable for origin window.fetch
+  // except 'base'，other props must be acceptable for origin window.fetch
   // see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
   credentials: 'include',
   redirect: 'manual',
@@ -43,14 +47,16 @@ default new config
 the default config will be merged with your config
 
 
-#### new Fxios(config)
-| method | param |
-|---|---|
-| get | [URL Object](#url-object),<br>query object, optional,<br>[runtimeConfig](#runtimeconfig) optional|
-| post | [URL Object](#url-object),<br>[body](#request-body): string or object<br>query object, optional,<br>[runtimeConfig](#runtimeconfig) optional |
-| delete | same as post |
-| put | same as post |
-| patch | same as post |
+#### Instance Api
+```javascript
+const fxios = new Fxios()
+```
+
+fxios#get(url: [UrlObject](#url-object)[, query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+fxios#post(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+fxios#put(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+fxios#patch(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+fxios#delete(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
 
 each method has already bound to the instance, so
 ```
@@ -61,8 +67,8 @@ get(...) // same as fxios.get
 
 #### URL Object
 
-the url object could be a string, like '/api/user/124/edit'
-or sometimes the router param need be inserted at run time, then it could be an object like
+the url object could be a string, like '/api/users'
+or sometimes the router param need to be generated at run time, like '/api/user/123/edit', then it could be an object whick has the shape as:
 ```
 {
   url: '/api/user/:id/edit',
@@ -71,15 +77,17 @@ or sometimes the router param need be inserted at run time, then it could be an 
   }
 }
 ```
-it will be converted to '/api/user/124/edit' before request.
+the url will be transformed to '/api/user/124/edit' when request.
+
+#### Query
+Plain javascript object, will be transformed to search. For example `{ name: 'abc' }` => `'name=abc'`
 
 #### Request body
 ArrayBuffer | ArrayBufferView | NodeJS.ReadableStream | string | URLSearchParams
 
 #### RuntimeConfig
-runtimeConfig object, all property must be acceptable for origin window.fetch
-see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
-for example
+RuntimeConfig object, all property must be acceptable for origin [window.fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch\_API)
+for example:
 ```
 {
   credentials: 'include',
@@ -89,12 +97,12 @@ for example
   ...
 }
 ```
-all config will be merged with the config when `new Fxios(config)`. if no instance config, the default config will work.
+All runtimeConfig properties will be merged with the config when instantiating `new Fxios(config)`. If no instance config, the default config works.
 
 #### Interceptor
 
-Inspired by axios interceptor.
-All Fxios interceptors are only javascript array, use push method to add new interceptor.
+Inspired by axios interceptor too.
+All Fxios interceptors are plain javascript array, use push method(or any array methods up to you) to add new interceptor.
 For example:
 ```
 fxios.interceptor.request.push(function(request) {...})
@@ -102,31 +110,35 @@ fxios.interceptor.response.push(function(response, request) {...})
 fxios.interceptor.catch.push(function(error, request) {...})
 ```
 
-`interceptor.request` is an array, each member function sign is
+##### `interceptor.request` array
+See [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
+Each member accept a Request object returned by the previous one, and must return a Request object. The last returned Request object will be used to perform remote request.
+the array member function sign is
 ```
 type RequestCallback = (res: Request) => Request
 ```
-See [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
 
-`interceptor.request` is an array, each member function sign is
+##### `interceptor.request`  array, each member function sign is
+The first response callback accept the origin fetch Response object, and the latter function will accept the result returned by the previous one.
+The second Request param is readonly.
+See [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
 ```
 type ResponseCallback = (res: any, req: Request) => any
 ```
-The first response callback accept the origin fetch Response object, and the latter function will accept the result returned by the previes one.
-The second Request param will not change.
-See [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
 
-`interceptor.catch` is an array, each member function sign is
+##### `interceptor.catch` is an array, each member function sign is
+Each catch member function will catch the error. If you want to the next catch interceptor to receive the previous processed error, you must rethrow the error.
+The second Request param is readonly.
 ```
 type CatchCallback = (err: Error, req: Request) => any
 ```
 
 #### EventEmitter
-Fxios extends the nodejs EventEmitter api
+Fxios extends the nodejs EventEmitter
 So it has all the EventEmitter api,
 If you would like to know more, please read [EventEmitter api](https://nodejs.org/api/events.html)
-here is some methods example
 The event methods could be used when request succeed or failed, to tell the ui to show something.
+Here are some methods example:
 
 | method | param |
 |---|---|
