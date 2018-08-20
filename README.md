@@ -28,7 +28,7 @@ More detail see [example.js](https://github.com/superwf/fxios/blob/master/exampl
 
 ```js
 import { Fxios } from 'fxios'
-const instance = new Fxios()
+const fxios = new Fxios()
 ```
 
 default new config
@@ -53,9 +53,13 @@ const fxios = new Fxios()
 ```
 
 fxios#get(url: [UrlObject](#url-object)[, query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+
 fxios#post(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+
 fxios#put(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+
 fxios#patch(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+
 fxios#delete(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
 
 each method has already bound to the instance, so
