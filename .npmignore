@@ -7,3 +7,4 @@ example.js
 rollup.config.js
 .gitignore
 coverage
+*.vim
