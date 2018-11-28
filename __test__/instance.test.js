@@ -134,7 +134,7 @@ describe('fetch', () => {
         }
         const fxios = new Fxios({ headers })
         fetchMock[method](mockUrls.get, mockData.get)
-        fxios.interceptor.request.push(req => {
+        fxios.interceptor.request.push((req) => {
           expect(req.headers._headers).toEqual({
             'x-request': ['power'],
             'content-type': [jsonType],

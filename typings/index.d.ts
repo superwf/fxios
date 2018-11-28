@@ -22,7 +22,7 @@ interface FxiosConfig extends RequestInit {
 
 // 实例化的配置参数
 type ResponseCallback = (res: any, req: Request) => any
-type RequestCallback = (res: Request) => Request
+type RequestCallback = (req: Request) => Request
 type CatchCallback = (err: Error, req: Request) => any
 
 // 拦截器

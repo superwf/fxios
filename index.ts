@@ -116,7 +116,7 @@ export class Fxios extends EventEmitter {
     ): Promise<any> => this.request('delete', url, option, runtimeConfig)
   }
 
-  request(
+  async request(
     method: string,
     url: string,
     option?: Option,
@@ -142,9 +142,12 @@ export class Fxios extends EventEmitter {
       request.body = body
     }
     let req: Request = new Request(`${base}${parsedUrl}`, request)
-    this.interceptor.request.forEach(cb => {
-      req = cb(req)
-    })
+    for (const cb of this.interceptor.request) {
+      req = await cb(req)
+    }
+    // this.interceptor.request.forEach(async cb => {
+    //   req = await cb(req)
+    // })
     let promise = fetch(req)
 
     this.interceptor.response.forEach(cb => {
