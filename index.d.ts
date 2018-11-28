@@ -4,17 +4,17 @@ import * as EventEmitter from 'events';
 export declare function isPlainObject(value: any): boolean;
 export declare const defaultRequestConfig: RequestInit;
 export declare const jsonType: string;
-export declare const parseUrl: (url: Url, query?: Query | undefined) => string;
+export declare const parseUrl: (url: string, option?: Option | undefined) => string;
 export declare class Fxios extends EventEmitter {
     base: string;
     interceptor: Interceptor;
     config: RequestInit;
-    get: RequestWithoutBody;
-    head: RequestWithoutBody;
-    post: RequestWithBody;
-    put: RequestWithBody;
-    delete: RequestWithBody;
-    patch: RequestWithBody;
+    get: RequestFunction;
+    head: RequestFunction;
+    post: RequestFunction;
+    put: RequestFunction;
+    delete: RequestFunction;
+    patch: RequestFunction;
     constructor(config?: FxiosConfig);
-    request(method: string, url: Url, body?: any, query?: Query, runtimeConfig?: RequestInit): Promise<any>;
+    request(method: string, url: string, option?: Option, runtimeConfig?: RequestInit): Promise<any>;
 }

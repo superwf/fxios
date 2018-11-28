@@ -62,12 +62,12 @@ export class Fxios extends EventEmitter {
   }
 
   config: RequestInit
-  get: RequestWithoutBody
-  head: RequestWithoutBody
-  post: RequestWithBody
-  put: RequestWithBody
-  delete: RequestWithBody
-  patch: RequestWithBody
+  get: RequestFunction
+  head: RequestFunction
+  post: RequestFunction
+  put: RequestFunction
+  delete: RequestFunction
+  patch: RequestFunction
 
   constructor(config: FxiosConfig = defaultRequestConfig) {
     super()

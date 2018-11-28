@@ -32,16 +32,8 @@ interface Interceptor {
   catch: CatchCallback[]
 }
 
-// get, head method
-type RequestWithoutBody = (
+type RequestFunction = (
   url: string,
-  query?: Query,
-  runtimeConfig?: RequestInit,
-) => Promise<any>
-// post put delete patch method
-type RequestWithBody = (
-  url: string,
-  body?: any,
-  query?: Query,
+  option?: Option,
   runtimeConfig?: RequestInit,
 ) => Promise<any>
