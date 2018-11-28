@@ -1,13 +1,17 @@
-// 作为路由参数的url
-interface UrlWithRouterParam {
-  url: string
-  param?: string
+// 混合的合成参数
+interface Option {
+  query?: Query
+  param?: Param
+  body?: any
 }
-
-type Url = string | UrlWithRouterParam
 
 // url query 对象
 interface Query {
+  [index: string]: string
+}
+
+// 路由参数对象
+interface Param {
   [index: string]: string
 }
 
@@ -30,13 +34,13 @@ interface Interceptor {
 
 // get, head method
 type RequestWithoutBody = (
-  url: Url,
+  url: string,
   query?: Query,
   runtimeConfig?: RequestInit,
 ) => Promise<any>
 // post put delete patch method
 type RequestWithBody = (
-  url: Url,
+  url: string,
   body?: any,
   query?: Query,
   runtimeConfig?: RequestInit,

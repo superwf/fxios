@@ -1,3 +1,28 @@
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -7,11 +32,11 @@ var __rest = (this && this.__rest) || function (s, e) {
             t[p[i]] = s[p[i]];
     return t;
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 /// <reference path="typings/index.d.ts" />
-const URL = require("url");
-const pathToRegexp = require("path-to-regexp");
-const EventEmitter = require("events");
+var URL = require("url");
+var pathToRegexp = require("path-to-regexp");
+var EventEmitter = require("events");
 // copy from lodash
 function isPlainObject(value) {
     if (value === undefined || value === null) {
@@ -25,7 +50,7 @@ function isPlainObject(value) {
         String(value) !== '[object Object]') {
         return false;
     }
-    let proto = Object.getPrototypeOf(value);
+    var proto = Object.getPrototypeOf(value);
     while (Object.getPrototypeOf(proto) !== null) {
         proto = Object.getPrototypeOf(proto);
     }
@@ -36,65 +61,72 @@ exports.defaultRequestConfig = {
     credentials: 'include',
     redirect: 'manual',
     mode: 'cors',
-    cache: 'reload',
+    cache: 'reload'
 };
 exports.jsonType = 'application/json';
-exports.parseUrl = (url, query) => {
+exports.parseUrl = function (url, query) {
     if (typeof url === 'object') {
         url = pathToRegexp.compile(url.url)(url.param);
     }
     if (query) {
-        const urlObject = URL.parse(url, true); // true: let the urlObject.query is object
+        var urlObject = URL.parse(url, true); // true: let the urlObject.query is object
         // see url#format, only search is absent, query will be used
         delete urlObject.search;
-        return URL.format(Object.assign({}, urlObject, { query: Object.assign({}, urlObject.query, query) }));
+        return URL.format(__assign({}, urlObject, { query: __assign({}, urlObject.query, query) }));
     }
     return url;
 };
-class Fxios extends EventEmitter {
-    constructor(config = exports.defaultRequestConfig) {
-        super();
-        this.interceptor = {
+var Fxios = /** @class */ (function (_super) {
+    __extends(Fxios, _super);
+    function Fxios(config) {
+        if (config === void 0) { config = exports.defaultRequestConfig; }
+        var _this = _super.call(this) || this;
+        _this.interceptor = {
             request: [],
             response: [],
-            catch: [],
+            "catch": []
         };
-        const { base } = config, requestConfig = __rest(config, ["base"]);
-        this.config = Object.assign({}, exports.defaultRequestConfig, requestConfig);
-        this.base = base || '';
+        var base = config.base, requestConfig = __rest(config, ["base"]);
+        _this.config = __assign({}, exports.defaultRequestConfig, requestConfig);
+        _this.base = base || '';
         // default max is 10
         // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
         // 1000 should be enough
-        this.setMaxListeners(1000);
-        this.get = (url, query, runtimeConfig) => this.request('get', url, undefined, query, runtimeConfig);
-        this.head = (url, query, runtimeConfig) => this.request('head', url, undefined, query, runtimeConfig);
-        this.post = (url, body, query, runtimeConfig) => this.request('post', url, body, query, runtimeConfig);
-        this.put = (url, body, query, runtimeConfig) => this.request('put', url, body, query, runtimeConfig);
-        this.patch = (url, body, query, runtimeConfig) => this.request('patch', url, body, query, runtimeConfig);
-        this.delete = (url, body, query, runtimeConfig) => this.request('delete', url, body, query, runtimeConfig);
+        _this.setMaxListeners(1000);
+        _this.get = function (url, query, runtimeConfig) { return _this.request('get', url, undefined, query, runtimeConfig); };
+        _this.head = function (url, query, runtimeConfig) {
+            return _this.request('head', url, undefined, query, runtimeConfig);
+        };
+        _this.post = function (url, body, query, runtimeConfig) { return _this.request('post', url, body, query, runtimeConfig); };
+        _this.put = function (url, body, query, runtimeConfig) { return _this.request('put', url, body, query, runtimeConfig); };
+        _this.patch = function (url, body, query, runtimeConfig) { return _this.request('patch', url, body, query, runtimeConfig); };
+        _this["delete"] = function (url, body, query, runtimeConfig) { return _this.request('delete', url, body, query, runtimeConfig); };
+        return _this;
     }
-    request(method, url, body, query, runtimeConfig = {}) {
-        const parsedUrl = exports.parseUrl(url, query);
-        const { base } = this;
-        const request = Object.assign({}, this.config, { method }, runtimeConfig);
-        let headers = request.headers || {};
+    Fxios.prototype.request = function (method, url, body, query, runtimeConfig) {
+        if (runtimeConfig === void 0) { runtimeConfig = {}; }
+        var parsedUrl = exports.parseUrl(url, query);
+        var base = this.base;
+        var request = __assign({}, this.config, { method: method }, runtimeConfig);
+        var headers = request.headers || {};
         if (isPlainObject(body)) {
-            request.headers = Object.assign({ 'content-type': exports.jsonType }, headers);
+            request.headers = __assign({ 'content-type': exports.jsonType }, headers);
             body = JSON.stringify(body);
         }
         request.body = body;
-        let req = new Request(`${base}${parsedUrl}`, request);
-        this.interceptor.request.forEach(cb => {
+        var req = new Request("" + base + parsedUrl, request);
+        this.interceptor.request.forEach(function (cb) {
             req = cb(req);
         });
-        let promise = fetch(req);
-        this.interceptor.response.forEach(cb => {
-            promise = promise.then(res => cb(res, req));
+        var promise = fetch(req);
+        this.interceptor.response.forEach(function (cb) {
+            promise = promise.then(function (res) { return cb(res, req); });
         });
-        this.interceptor.catch.forEach(cb => {
-            promise = promise.catch(err => cb(err, req));
+        this.interceptor["catch"].forEach(function (cb) {
+            promise = promise["catch"](function (err) { return cb(err, req); });
         });
         return promise;
-    }
-}
+    };
+    return Fxios;
+}(EventEmitter));
 exports.Fxios = Fxios;

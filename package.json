@@ -1,6 +1,6 @@
 {
   "name": "fxios",
-  "version": "0.5.2",
+  "version": "1.0.0",
   "description": "ajax fetch axios",
   "main": "index.js",
   "module": "dist/index.module.js",
@@ -15,7 +15,11 @@
     "type": "git",
     "url": "https://github.com/superwf/fxios.git"
   },
-  "keywords": ["ajax", "fetch", "axios"],
+  "keywords": [
+    "ajax",
+    "fetch",
+    "axios"
+  ],
   "author": "superwf@gmail.com",
   "license": "ISC",
   "dependencies": {
@@ -36,6 +40,7 @@
     "eslint-plugin-flowtype": "^2.49.3",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-jsx-a11y": "^6.1.0",
+    "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-react": "^7.10.0",
     "fetch-mock": "^6.3.0",
     "isomorphic-fetch": "^2.2.1",
@@ -54,19 +59,33 @@
     "typescript-eslint-parser": "^16.0.1"
   },
   "lint-staged": {
-    "*.js": ["prettier --write", "git add"]
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "typings": "typings/index.d.ts",
   "jest": {
     "testEnvironment": "node",
     "testURL": "http://localhost",
-    "collectCoverageFrom": ["index.ts"],
-    "setupFiles": ["./jest.setup.js"],
+    "collectCoverageFrom": [
+      "index.ts"
+    ],
+    "setupFiles": [
+      "./jest.setup.js"
+    ],
     "transform": {
       "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest",
       "^.+\\.(t|j)sx?$": "ts-jest"
     },
     "testRegex": "(/__test__/.*(test|spec))\\.(j|t)sx?$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

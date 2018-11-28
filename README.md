@@ -5,18 +5,19 @@
 ##### inspired by axios, build with typescript
 ##### fxios = fetch + axios
 
+### Notice !!!Version 1.0.0 api changed, not compactible with 0.5.x
+
 ### Install
 
 ```bash
 npm install fxios
 ```
 
-
 #### example
 ```
 const fxios = new Fxios()
 async function createUser() {
-  const result = await fxios.post('/api/user', { name: 'abc' })
+  const result = await fxios.post('/api/user', { body: { name: 'abc' } })
   return result
 }
 ```
@@ -52,15 +53,15 @@ the default config will be merged with your config
 const fxios = new Fxios()
 ```
 
-fxios#get(url: [UrlObject](#url-object)[, query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+fxios#get(url: string[, option: [Option](#option), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
 
-fxios#post(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+fxios#post(url: string[, option: [Option](#option), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
 
-fxios#put(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+fxios#put(url: string[, option: [Option](#option), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
 
-fxios#patch(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+fxios#patch(url: string[, option: [Option](#option), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
 
-fxios#delete(url: [UrlObject](#url-object)[, body: [RequestBody](#request-body), query: [Query](#query), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
+fxios#delete(url: string[, option: [Option](#option), runtimeconfig: [RuntimeConfig](#runtimeconfig) ])
 
 each method has already bound to the instance, so
 ```
@@ -69,22 +70,37 @@ const get = fxios.get
 get(...) // same as fxios.get
 ```
 
-#### URL Object
+the url will be transformed to '/api/user/124/edit' when request.
 
-the url object could be a string, like '/api/users'
-or sometimes the router param need to be generated at run time, like '/api/user/123/edit', then it could be an object whick has the shape as:
+#### Option
+Plain javascript object, could include three properties
+
 ```
 {
-  url: '/api/user/:id/edit',
-  param: {
-    id: '124'
-  }
+  query?: [Query](#query)
+  param?: [Param](#param)
+  body?: any
 }
 ```
-the url will be transformed to '/api/user/124/edit' when request.
+
+When use `get` http method, `body` property is useless and should not be assigned.
 
 #### Query
 Plain javascript object, will be transformed to search. For example `{ name: 'abc' }` => `'name=abc'`
+
+#### Param
+
+the url object could be a string, like '/api/users'
+or sometimes the router param need to be generated at run time, like '/api/user/123/edit', then it could be an object whick has the shape as:
+
+```javascript
+fxios.get('/api/user/:id/edit', {
+  param: {
+    id: '124'
+  }
+})
+```
+the url will be transformed to '/api/user/124/edit' when request.
 
 #### Request body
 ArrayBuffer | ArrayBufferView | NodeJS.ReadableStream | string | URLSearchParams

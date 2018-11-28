@@ -34,19 +34,19 @@ export const defaultRequestConfig: RequestInit = {
 
 export const jsonType: string = 'application/json'
 
-export const parseUrl = (url: Url, query?: Query): string => {
-  if (typeof url === 'object') {
-    url = pathToRegexp.compile(url.url)(url.param)
+export const parseUrl = (url: string, option?: Option): string => {
+  if (option && option.param) {
+    url = pathToRegexp.compile(url)(option.param)
   }
-  if (query) {
+  if (option && option.query) {
     const urlObject = URL.parse(url, true) // true: let the urlObject.query is object
     // see url#format, only search is absent, query will be used
     delete urlObject.search
-    return URL.format({
+    url = URL.format({
       ...urlObject,
       query: {
         ...urlObject.query,
-        ...query,
+        ...option.query,
       },
     })
   }
@@ -80,53 +80,49 @@ export class Fxios extends EventEmitter {
     this.setMaxListeners(1000)
 
     this.get = (
-      url: Url,
-      query?: Query,
+      url: string,
+      option?: Option,
       runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('get', url, undefined, query, runtimeConfig)
+    ): Promise<any> => this.request('get', url, option, runtimeConfig)
 
     this.head = (
-      url: Url,
-      query?: Query,
+      url: string,
+      option?: Option,
       runtimeConfig?: RequestInit,
-    ): Promise<any> =>
-      this.request('head', url, undefined, query, runtimeConfig)
+    ): Promise<any> => this.request('head', url, option, runtimeConfig)
 
     this.post = (
-      url: Url,
-      body?: any,
-      query?: Query,
+      url: string,
+      option?: Option,
       runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('post', url, body, query, runtimeConfig)
+    ): Promise<any> => this.request('post', url, option, runtimeConfig)
 
     this.put = (
-      url: Url,
-      body?: any,
-      query?: Query,
+      url: string,
+      option?: Option,
       runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('put', url, body, query, runtimeConfig)
+    ): Promise<any> => this.request('put', url, option, runtimeConfig)
+
     this.patch = (
-      url: Url,
-      body?: any,
-      query?: Query,
+      url: string,
+      option?: Option,
       runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('patch', url, body, query, runtimeConfig)
+    ): Promise<any> => this.request('patch', url, option, runtimeConfig)
+
     this.delete = (
-      url: Url,
-      body?: any,
-      query?: Query,
+      url: string,
+      option?: Option,
       runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('delete', url, body, query, runtimeConfig)
+    ): Promise<any> => this.request('delete', url, option, runtimeConfig)
   }
 
   request(
     method: string,
-    url: Url,
-    body?: any,
-    query?: Query,
+    url: string,
+    option?: Option,
     runtimeConfig: RequestInit = {},
   ): Promise<any> {
-    const parsedUrl = parseUrl(url, query)
+    const parsedUrl = parseUrl(url, option)
     const { base } = this
     const request: RequestInit = {
       ...this.config,
@@ -134,14 +130,17 @@ export class Fxios extends EventEmitter {
       ...runtimeConfig,
     }
     let headers: HeadersInit = request.headers || {}
-    if (isPlainObject(body)) {
-      request.headers = {
-        'content-type': jsonType,
-        ...headers,
+    if (option && option.body) {
+      let { body } = option
+      if (isPlainObject(body)) {
+        request.headers = {
+          'content-type': jsonType,
+          ...headers,
+        }
+        body = JSON.stringify(body)
       }
-      body = JSON.stringify(body)
+      request.body = body
     }
-    request.body = body
     let req: Request = new Request(`${base}${parsedUrl}`, request)
     this.interceptor.request.forEach(cb => {
       req = cb(req)
@@ -158,11 +157,11 @@ export class Fxios extends EventEmitter {
     return promise
   }
 
-  // options(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
+  // options(url: string, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
   //   return this.request('options', url, undefined, query, runtimeConfig)
   // }
 
-  // trace(url: Url, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
+  // trace(url: string, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
   //   return this.request('trace', url, undefined, query, runtimeConfig)
   // }
 }
