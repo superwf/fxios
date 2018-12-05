@@ -74,12 +74,17 @@ class Fxios extends EventEmitter {
         // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
         // 1000 should be enough
         this.setMaxListeners(1000);
-        this.get = (url, option, runtimeConfig) => this.request('get', url, option, runtimeConfig);
-        this.head = (url, option, runtimeConfig) => this.request('head', url, option, runtimeConfig);
-        this.post = (url, option, runtimeConfig) => this.request('post', url, option, runtimeConfig);
-        this.put = (url, option, runtimeConfig) => this.request('put', url, option, runtimeConfig);
-        this.patch = (url, option, runtimeConfig) => this.request('patch', url, option, runtimeConfig);
-        this.delete = (url, option, runtimeConfig) => this.request('delete', url, option, runtimeConfig);
+        const methods = [
+            'get',
+            'head',
+            'post',
+            'put',
+            'delete',
+            'patch',
+        ];
+        methods.forEach((method) => {
+            this[method] = (url, option, runtimeConfig) => this.request(method, url, option, runtimeConfig);
+        });
     }
     request(method, url, option, runtimeConfig = {}) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -99,9 +104,6 @@ class Fxios extends EventEmitter {
             for (const cb of this.interceptor.request) {
                 req = yield cb(req);
             }
-            // this.interceptor.request.forEach(async cb => {
-            //   req = await cb(req)
-            // })
             let promise = fetch(req);
             this.interceptor.response.forEach(cb => {
                 promise = promise.then(res => cb(res, req));

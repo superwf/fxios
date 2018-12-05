@@ -63,8 +63,8 @@ export class Fxios extends EventEmitter {
 
   config: RequestInit
   get: RequestFunction
-  head: RequestFunction
   post: RequestFunction
+  head: RequestFunction
   put: RequestFunction
   delete: RequestFunction
   patch: RequestFunction
@@ -79,41 +79,21 @@ export class Fxios extends EventEmitter {
     // 1000 should be enough
     this.setMaxListeners(1000)
 
-    this.get = (
-      url: string,
-      option?: Option,
-      runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('get', url, option, runtimeConfig)
-
-    this.head = (
-      url: string,
-      option?: Option,
-      runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('head', url, option, runtimeConfig)
-
-    this.post = (
-      url: string,
-      option?: Option,
-      runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('post', url, option, runtimeConfig)
-
-    this.put = (
-      url: string,
-      option?: Option,
-      runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('put', url, option, runtimeConfig)
-
-    this.patch = (
-      url: string,
-      option?: Option,
-      runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('patch', url, option, runtimeConfig)
-
-    this.delete = (
-      url: string,
-      option?: Option,
-      runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request('delete', url, option, runtimeConfig)
+    const methods: Array<HttpMethod> = [
+      'get',
+      'head',
+      'post',
+      'put',
+      'delete',
+      'patch',
+    ]
+    methods.forEach((method: HttpMethod) => {
+      this[method] = (
+        url: string,
+        option?: Option,
+        runtimeConfig?: RequestInit,
+      ): Promise<any> => this.request(method, url, option, runtimeConfig)
+    })
   }
 
   async request(
@@ -145,9 +125,6 @@ export class Fxios extends EventEmitter {
     for (const cb of this.interceptor.request) {
       req = await cb(req)
     }
-    // this.interceptor.request.forEach(async cb => {
-    //   req = await cb(req)
-    // })
     let promise = fetch(req)
 
     this.interceptor.response.forEach(cb => {

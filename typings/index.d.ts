@@ -37,3 +37,5 @@ type RequestFunction = (
   option?: Option,
   runtimeConfig?: RequestInit,
 ) => Promise<any>
+
+type HttpMethod = 'get' | 'head' | 'post' | 'put' | 'delete' | 'patch'

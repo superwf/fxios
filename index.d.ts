@@ -10,8 +10,8 @@ export declare class Fxios extends EventEmitter {
     interceptor: Interceptor;
     config: RequestInit;
     get: RequestFunction;
-    head: RequestFunction;
     post: RequestFunction;
+    head: RequestFunction;
     put: RequestFunction;
     delete: RequestFunction;
     patch: RequestFunction;
