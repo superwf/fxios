@@ -301,4 +301,16 @@ describe('fetch', () => {
       })
     })
   })
+
+  it(`测试runtimeConfig更改base`, () => {
+    const fxios = new Fxios({
+      base: '/api/'
+    })
+    fetchMock.get('/xxx/abc', mockData.get)
+    return fxios.get('abc', null, {
+      base: '/xxx/',
+    }).then(res => {
+      expect(res).toBeInstanceOf(Response)
+    })
+  })
 })

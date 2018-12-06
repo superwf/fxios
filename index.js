@@ -89,7 +89,7 @@ class Fxios extends EventEmitter {
     request(method, url, option, runtimeConfig = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             const parsedUrl = exports.parseUrl(url, option);
-            const { base } = this;
+            const base = 'base' in runtimeConfig ? runtimeConfig.base : this.base;
             const request = Object.assign({}, this.config, { method }, runtimeConfig);
             let headers = request.headers || {};
             if (option && option.body) {

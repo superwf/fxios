@@ -16,5 +16,5 @@ export declare class Fxios extends EventEmitter {
     delete: RequestFunction;
     patch: RequestFunction;
     constructor(config?: FxiosConfig);
-    request(method: string, url: string, option?: Option, runtimeConfig?: RequestInit): Promise<any>;
+    request(method: string, url: string, option?: Option, runtimeConfig?: FxiosConfig): Promise<any>;
 }

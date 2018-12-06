@@ -100,10 +100,10 @@ export class Fxios extends EventEmitter {
     method: string,
     url: string,
     option?: Option,
-    runtimeConfig: RequestInit = {},
+    runtimeConfig: FxiosConfig = {},
   ): Promise<any> {
     const parsedUrl = parseUrl(url, option)
-    const { base } = this
+    const base = 'base' in runtimeConfig ? runtimeConfig.base : this.base
     const request: RequestInit = {
       ...this.config,
       method,
