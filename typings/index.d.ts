@@ -1,5 +1,5 @@
-// 混合的合成参数
-interface Option {
+// 发起请求时的通用参数
+interface FxiosRequestOption {
   query?: Query
   param?: Param
   body?: any
@@ -17,12 +17,16 @@ interface Param {
 
 // 实例化的配置参数
 interface FxiosConfig extends RequestInit {
-  base?: string
+  baseURL?: string
 }
 
 // 实例化的配置参数
 type ResponseCallback = (res: any, req: Request) => any
-type RequestCallback = (req: Request) => Request
+type RequestCallback = (
+    url: string,
+    option?: FxiosRequestOption,
+    runtimeConfig?: FxiosConfig,
+) => [string, FxiosRequestOption | undefined, FxiosConfig | undefined]
 type CatchCallback = (err: Error, req: Request) => any
 
 // 拦截器
@@ -34,8 +38,8 @@ interface Interceptor {
 
 type RequestFunction = (
   url: string,
-  option?: Option,
+  option?: FxiosRequestOption,
   runtimeConfig?: RequestInit,
 ) => Promise<any>
 
-type HttpMethod = 'get' | 'head' | 'post' | 'put' | 'delete' | 'patch'
+type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch'

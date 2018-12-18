@@ -1,6 +1,6 @@
 {
   "name": "fxios",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "ajax fetch axios",
   "main": "index.js",
   "module": "dist/index.module.js",
@@ -46,6 +46,8 @@
     "isomorphic-fetch": "^2.2.1",
     "jest": "^23.6.0",
     "lint-staged": "^7.0.4",
+    "markdownlint": "^0.11.0",
+    "markdownlint-cli": "^0.13.0",
     "prettier": "^1.12.1",
     "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
@@ -55,7 +57,7 @@
     "tslint": "^5.11.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
-    "typescript": "^3.2.1",
+    "typescript": "3.1.1",
     "typescript-eslint-parser": "^21.0.2"
   },
   "lint-staged": {

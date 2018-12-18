@@ -1,13 +1,9 @@
 /// <reference path="typings/index.d.ts" />
 import * as URL from 'url'
 import * as pathToRegexp from 'path-to-regexp'
-import * as EventEmitter from 'events'
 
 // copy from lodash
 export function isPlainObject(value: any): boolean {
-  if (value === undefined || value === null) {
-    return false
-  }
   if (Object.getPrototypeOf(value) === null || Array.isArray(value)) {
     return true
   }
@@ -34,7 +30,7 @@ export const defaultRequestConfig: RequestInit = {
 
 export const jsonType: string = 'application/json'
 
-export const parseUrl = (url: string, option?: Option): string => {
+export const parseUrl = (url: string, option?: FxiosRequestOption): string => {
   if (option && option.param) {
     url = pathToRegexp.compile(url)(option.param)
   }
@@ -53,35 +49,31 @@ export const parseUrl = (url: string, option?: Option): string => {
   return url
 }
 
-export class Fxios extends EventEmitter {
-  base: string
+export class Fxios {
+  baseURL: string
   interceptor: Interceptor = {
     request: [],
     response: [],
     catch: [],
   }
 
-  config: RequestInit
+  fetchConfig: RequestInit
   get: RequestFunction
   post: RequestFunction
-  head: RequestFunction
   put: RequestFunction
   delete: RequestFunction
   patch: RequestFunction
 
+  // for extendHttpMethod
+  [key: string]: any
+
   constructor(config: FxiosConfig = defaultRequestConfig) {
-    super()
-    const { base, ...requestConfig } = config
-    this.config = { ...defaultRequestConfig, ...requestConfig }
-    this.base = base || ''
-    // default max is 10
-    // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
-    // 1000 should be enough
-    this.setMaxListeners(1000)
+    const { baseURL, ...requestConfig } = config
+    this.fetchConfig = { ...requestConfig }
+    this.baseURL = baseURL || ''
 
     const methods: Array<HttpMethod> = [
       'get',
-      'head',
       'post',
       'put',
       'delete',
@@ -90,58 +82,61 @@ export class Fxios extends EventEmitter {
     methods.forEach((method: HttpMethod) => {
       this[method] = (
         url: string,
-        option?: Option,
+        option?: FxiosRequestOption,
         runtimeConfig?: RequestInit,
       ): Promise<any> => this.request(method, url, option, runtimeConfig)
     })
   }
 
+  extendHttpMethod(method: string): void {
+    this[method] = (
+        url: string,
+        option?: FxiosRequestOption,
+        runtimeConfig?: RequestInit,
+      ): Promise<any> => this.request(method, url, option, runtimeConfig)
+  }
+
   async request(
     method: string,
     url: string,
-    option?: Option,
-    runtimeConfig: FxiosConfig = {},
+    option?: FxiosRequestOption,
+    runtimeConfig?: FxiosConfig,
   ): Promise<any> {
+    for (const cb of this.interceptor.request) {
+      [url, option, runtimeConfig] = await cb.call(this, url, option, runtimeConfig)
+    }
     const parsedUrl = parseUrl(url, option)
-    const base = 'base' in runtimeConfig ? runtimeConfig.base : this.base
-    const request: RequestInit = {
-      ...this.config,
+    if (runtimeConfig === undefined) {
+      runtimeConfig = {}
+    }
+    const baseURL = 'baseURL' in runtimeConfig ? runtimeConfig.baseURL : this.baseURL
+    const requestOption: FxiosConfig = {
+      ...this.fetchConfig,
       method,
       ...runtimeConfig,
     }
-    let headers: HeadersInit = request.headers || {}
+    let headers: HeadersInit = requestOption.headers || {}
     if (option && option.body) {
       let { body } = option
       if (isPlainObject(body)) {
-        request.headers = {
-          'content-type': jsonType,
+        requestOption.headers = {
+          'Content-Type': jsonType,
           ...headers,
         }
         body = JSON.stringify(body)
       }
-      request.body = body
+      requestOption.body = body
     }
-    let req: Request = new Request(`${base}${parsedUrl}`, request)
-    for (const cb of this.interceptor.request) {
-      req = await cb(req)
-    }
+    const req: Request = new Request(`${baseURL}${parsedUrl}`, requestOption)
     let promise = fetch(req)
 
     this.interceptor.response.forEach(cb => {
-      promise = promise.then(res => cb(res, req))
+      promise = promise.then(res => cb.call(this, res, req))
     })
 
     this.interceptor.catch.forEach(cb => {
-      promise = promise.catch(err => cb(err, req))
+      promise = promise.catch(err => cb.call(this, err, req))
     })
     return promise
   }
-
-  // options(url: string, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
-  //   return this.request('options', url, undefined, query, runtimeConfig)
-  // }
-
-  // trace(url: string, query?: Query, runtimeConfig?: RequestInit): Promise<any> {
-  //   return this.request('trace', url, undefined, query, runtimeConfig)
-  // }
 }
