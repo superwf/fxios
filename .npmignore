@@ -8,3 +8,6 @@ rollup.config.js
 .gitignore
 coverage
 *.vim
+.markdownlint.json
+.projections.json
+jest.setup.js
