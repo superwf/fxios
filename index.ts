@@ -52,9 +52,9 @@ export const parseUrl = (url: string, option?: FxiosRequestOption): string => {
 export class Fxios {
   baseURL: string
   interceptor: Interceptor = {
-    request: [],
-    response: [],
-    catch: [],
+    request: undefined,
+    response: undefined,
+    catch: undefined,
   }
 
   fetchConfig: RequestInit
@@ -102,8 +102,8 @@ export class Fxios {
     option?: FxiosRequestOption,
     runtimeConfig?: FxiosConfig,
   ): Promise<any> {
-    for (const cb of this.interceptor.request) {
-      [url, option, runtimeConfig] = await cb.call(this, url, option, runtimeConfig)
+    if (this.interceptor.request) {
+      [url, option, runtimeConfig] = await this.interceptor.request.call(this, url, option, runtimeConfig)
     }
     const parsedUrl = parseUrl(url, option)
     if (runtimeConfig === undefined) {
@@ -130,12 +130,18 @@ export class Fxios {
     const req: Request = new Request(`${baseURL}${parsedUrl}`, requestOption)
     let promise = fetch(req)
 
-    this.interceptor.response.forEach(cb => {
-      promise = promise.then(res => cb.call(this, res, req))
+    promise = promise.then(res => {
+      if (this.interceptor.response !== undefined) {
+        return this.interceptor.response.call(this, res, req)
+      }
+      return res
     })
 
-    this.interceptor.catch.forEach(cb => {
-      promise = promise.catch(err => cb.call(this, err, req))
+    promise = promise.catch(err => {
+      if (this.interceptor.catch !== undefined) {
+        return this.interceptor.catch.call(this, err, req)
+      }
+      throw err
     })
     return promise
   }

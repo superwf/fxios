@@ -12,6 +12,8 @@
 
 * new Fxios(config)，`config`参数中的`base`属性改为`baseURL`，在实际发起请求的`runtimeConfig`中对应的属性也改为了`baseURL`。
 
+* 所有拦截器成员都改为普通函数。
+
 * request拦截器参数变更，每个拦截器接收三个参数`url`，`option`，`runtimeConfig`，并且必须返回由这三个参数构成的数组供下一个请求拦截器使用。
 
 * 新方法`extendHttpMethod`可以扩展fxios的请求方法。生成除了`get`, `post`, `put`, `delete`, `patch`之外的新方法。
@@ -165,9 +167,9 @@ fxios.post('/api/user', {
 interceptor对象有三个属性对应三种拦截器，`request`、`response`、`catch`。每个拦截器都是普通js数组，在运行时会按数组先后顺序依次执行。也可按需在对应的数组中添加或减少成员函数。
 
 ```javascript
-fxios.interceptor.request.push(function(url, option, runtimeConfig) {...})
-fxios.interceptor.response.push(function(response, request) {...})
-fxios.interceptor.catch.push(function(error, request) {...})
+fxios.interceptor.request = function(url, option, runtimeConfig) {...}
+fxios.interceptor.response = function(response, request) {...}
+fxios.interceptor.catch = function(error, request) {...}
 ```
 
 #### `interceptor.request`请求拦截器

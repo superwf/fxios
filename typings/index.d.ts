@@ -31,9 +31,9 @@ type CatchCallback = (err: Error, req: Request) => any
 
 // 拦截器
 interface Interceptor {
-  request: RequestCallback[]
-  response: ResponseCallback[]
-  catch: CatchCallback[]
+  request?: RequestCallback
+  response?: ResponseCallback
+  catch?: CatchCallback
 }
 
 type RequestFunction = (

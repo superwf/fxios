@@ -113,9 +113,9 @@ describe('fetch', () => {
       }
       const fxios = new Fxios({ headers })
       fetchMock[method](`${mockUrls.get}/abc`, mockData.get)
-      fxios.interceptor.request.push((url, option, runtimeConfig) => {
+      fxios.interceptor.request = (url, option, runtimeConfig) => {
         return [`${url}/abc`, option, runtimeConfig]
-      })
+      }
       return fxios[method](mockUrls.get).then(res => {
         const lastCall = fetchMock.lastCall()
         expect(lastCall[0].headers._headers).toEqual({
@@ -170,13 +170,13 @@ describe('fetch', () => {
   it('get方法，测试interceptor.request', () => {
     const query = { abc: 'xyz' }
     const fxios = new Fxios()
-    fxios.interceptor.request.push((url, option, runtimeConfig) => {
+    fxios.interceptor.request = (url, option, runtimeConfig) => {
       url = URL.parse(url, true)
       url.query.name = 'def'
       delete url.search
       url = URL.format(url)
       return [url, option, runtimeConfig]
-    })
+    }
     const url = URL.format({
       pathname: mockUrls.get,
       query: { abc: 'xyz', name: 'def' },
@@ -191,7 +191,7 @@ describe('fetch', () => {
   it('get方法，通过interceptor处理数据', () => {
     const fxios = new Fxios()
     fetchMock.get(mockUrls.get, mockData.get)
-    fxios.interceptor.response.push((res, req) => {
+    fxios.interceptor.response = (res, req) => {
       if (!res.ok) {
         const error = new Error(res.statusText)
         error.response = res
@@ -201,7 +201,7 @@ describe('fetch', () => {
       return res.json().then(data => {
         return data
       })
-    })
+    }
     return fxios.get(mockUrls.get).then(res => {
       expect(res).toEqual(mockData.get)
     })
@@ -241,16 +241,16 @@ describe('fetch', () => {
 
   it('interceptor.catch', done => {
     const fxios = new Fxios()
-    fxios.interceptor.catch.push((err, req) => {
+    fxios.interceptor.catch = (err, req) => {
       expect(err).toBeInstanceOf(Error)
       expect(req).toBeInstanceOf(Request)
       done()
-    })
-    fxios.interceptor.response.push((res, req) => {
+    }
+    fxios.interceptor.response = (res, req) => {
       if (res.status !== 200) {
         throw new Error(res.status)
       }
-    })
+    }
     const init = { status: 404 }
     const res = new Response([], init)
     fetchMock.get(mockUrls.get, res)

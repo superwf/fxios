@@ -12,6 +12,8 @@
 
 * new Fxios(config) changed, change `base` to `baseURL`, to keep same data structure with the `runtimeConfig`.
 
+* all interceptor change from array to single function.
+
 * interceptor request changed, each request interceptor should return the same arguments with the fxios request method, the arguments is `url, option, runtimeConfig`，`option` and `runtimeConfig` is optional. each request interceptor must return an array with these three arguments, as [url: string, option?: FxiosOption, runtimeConfig?: FxiosConfig].
 
 * add `extendHttpMethod` for extend new http method expect `get`, `post`, `put`, `delete`, `head`, `patch`.
@@ -72,6 +74,7 @@ The `config` type is `FxiosConfig`, type structure as below:
 ```
 
 ### Instance Api
+
 ```javascript
 const fxios = new Fxios()
 ```
@@ -161,12 +164,12 @@ All Fxios interceptors are plain javascript array, use push method(or any array 
 For example:
 
 ```javascript
-fxios.interceptor.request.push(function(request) {...})
-fxios.interceptor.response.push(function(response, request) {...})
-fxios.interceptor.catch.push(function(error, request) {...})
+fxios.interceptor.request = function(url, option, runtimeConfig) {...}
+fxios.interceptor.response = function(response, request) {...}
+fxios.interceptor.catch = function(error, request) {...}
 ```
 
-#### `interceptor.request` array
+#### `interceptor.request`
 
 The last member function return value will be used for request value
 The member function sign is:
@@ -175,7 +178,7 @@ The member function sign is:
 type RequestCallback = (url: string, option?: FxiosOption, runtimeConfig?: FxiosConfig) => [url: string, option?: FxiosOption, runtimeConfig?: FxiosConfig]
 ```
 
-#### `interceptor.request`
+#### interceptor.request
 
 The first response callback accept the origin fetch Response object, and the latter function will accept the result returned by the previous one.
 See [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
@@ -189,7 +192,7 @@ array, each member function sign is
 type ResponseCallback = (res: any, req: Request) => any
 ```
 
-#### `interceptor.catch` is an array, each member function sign is
+#### `interceptor.catch`
 
 Each catch member function will catch the error. If you want to the next catch interceptor to receive the previous processed error, you must rethrow the error.
 The second Request param is readonly.
