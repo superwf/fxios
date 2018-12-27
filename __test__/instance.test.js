@@ -257,6 +257,22 @@ describe('fetch', () => {
     fxios.get(mockUrls.get)
   })
 
+  it('当没有interceptor.catch时，通过普通catch可以捕获错误', done => {
+    const fxios = new Fxios()
+    fxios.interceptor.response = (res, req) => {
+      if (res.status !== 200) {
+        throw new Error(res.status)
+      }
+    }
+    const init = { status: 404 }
+    const res = new Response([], init)
+    fetchMock.get(mockUrls.get, res)
+    fxios.get(mockUrls.get).catch(err => {
+      expect(err).toBeInstanceOf(Error)
+      done()
+    })
+  })
+
   it(`测试runtimeConfig更改baseURL`, () => {
     const fxios = new Fxios({
       baseURL: '/api/',
