@@ -19,12 +19,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /// <reference path="typings/index.d.ts" />
 const URL = require("url");
 const pathToRegexp = require("path-to-regexp");
-const EventEmitter = require("events");
 // copy from lodash
 function isPlainObject(value) {
-    if (value === undefined || value === null) {
-        return false;
-    }
     if (Object.getPrototypeOf(value) === null || Array.isArray(value)) {
         return true;
     }
@@ -59,24 +55,18 @@ exports.parseUrl = (url, option) => {
     }
     return url;
 };
-class Fxios extends EventEmitter {
+class Fxios {
     constructor(config = exports.defaultRequestConfig) {
-        super();
         this.interceptor = {
-            request: [],
-            response: [],
-            catch: [],
+            request: undefined,
+            response: undefined,
+            catch: undefined,
         };
-        const { base } = config, requestConfig = __rest(config, ["base"]);
-        this.config = Object.assign({}, exports.defaultRequestConfig, requestConfig);
-        this.base = base || '';
-        // default max is 10
-        // https://nodejs.org/api/events.html#events_emitter_setmaxlisteners_n
-        // 1000 should be enough
-        this.setMaxListeners(1000);
+        const { baseURL } = config, requestConfig = __rest(config, ["baseURL"]);
+        this.fetchConfig = Object.assign({}, requestConfig);
+        this.baseURL = baseURL || '';
         const methods = [
             'get',
-            'head',
             'post',
             'put',
             'delete',
@@ -86,30 +76,42 @@ class Fxios extends EventEmitter {
             this[method] = (url, option, runtimeConfig) => this.request(method, url, option, runtimeConfig);
         });
     }
-    request(method, url, option, runtimeConfig = {}) {
+    extendHttpMethod(method) {
+        this[method] = (url, option, runtimeConfig) => this.request(method, url, option, runtimeConfig);
+    }
+    request(method, url, option, runtimeConfig) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (this.interceptor.request) {
+                [url, option, runtimeConfig] = yield this.interceptor.request.call(this, url, option, runtimeConfig);
+            }
             const parsedUrl = exports.parseUrl(url, option);
-            const base = 'base' in runtimeConfig ? runtimeConfig.base : this.base;
-            const request = Object.assign({}, this.config, { method }, runtimeConfig);
-            let headers = request.headers || {};
+            if (runtimeConfig === undefined) {
+                runtimeConfig = {};
+            }
+            const baseURL = 'baseURL' in runtimeConfig ? runtimeConfig.baseURL : this.baseURL;
+            const requestOption = Object.assign({}, this.fetchConfig, { method }, runtimeConfig);
+            let headers = requestOption.headers || {};
             if (option && option.body) {
                 let { body } = option;
                 if (isPlainObject(body)) {
-                    request.headers = Object.assign({ 'content-type': exports.jsonType }, headers);
+                    requestOption.headers = Object.assign({ 'Content-Type': exports.jsonType }, headers);
                     body = JSON.stringify(body);
                 }
-                request.body = body;
+                requestOption.body = body;
             }
-            let req = new Request(`${base}${parsedUrl}`, request);
-            for (const cb of this.interceptor.request) {
-                req = yield cb(req);
-            }
+            const req = new Request(`${baseURL}${parsedUrl}`, requestOption);
             let promise = fetch(req);
-            this.interceptor.response.forEach(cb => {
-                promise = promise.then(res => cb(res, req));
+            promise = promise.then(res => {
+                if (this.interceptor.response !== undefined) {
+                    return this.interceptor.response.call(this, res, req);
+                }
+                return res;
             });
-            this.interceptor.catch.forEach(cb => {
-                promise = promise.catch(err => cb(err, req));
+            promise = promise.catch(err => {
+                if (this.interceptor.catch !== undefined) {
+                    return this.interceptor.catch.call(this, err, req);
+                }
+                throw err;
             });
             return promise;
         });

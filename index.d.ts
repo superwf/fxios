@@ -1,20 +1,19 @@
 /// <reference path="typings/index.d.ts" />
-/// <reference types="node" />
-import * as EventEmitter from 'events';
 export declare function isPlainObject(value: any): boolean;
 export declare const defaultRequestConfig: RequestInit;
 export declare const jsonType: string;
-export declare const parseUrl: (url: string, option?: Option | undefined) => string;
-export declare class Fxios extends EventEmitter {
-    base: string;
+export declare const parseUrl: (url: string, option?: FxiosRequestOption | undefined) => string;
+export declare class Fxios {
+    baseURL: string;
     interceptor: Interceptor;
-    config: RequestInit;
+    fetchConfig: RequestInit;
     get: RequestFunction;
     post: RequestFunction;
-    head: RequestFunction;
     put: RequestFunction;
     delete: RequestFunction;
     patch: RequestFunction;
+    [key: string]: any;
     constructor(config?: FxiosConfig);
-    request(method: string, url: string, option?: Option, runtimeConfig?: FxiosConfig): Promise<any>;
+    extendHttpMethod(method: string): void;
+    request(method: string, url: string, option?: FxiosRequestOption, runtimeConfig?: FxiosConfig): Promise<any>;
 }
