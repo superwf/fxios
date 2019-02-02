@@ -1,6 +1,13 @@
 /// <reference path="typings/index.d.ts" />
 import * as URL from 'url'
 import * as pathToRegexp from 'path-to-regexp'
+import {
+  Interceptor,
+  FxiosRequestOption,
+  RequestFunction,
+  FxiosConfig,
+  HttpMethod,
+} from './typings/index'
 
 // copy from lodash
 export function isPlainObject(value: any): boolean {

@@ -1,4 +1,5 @@
 /// <reference path="typings/index.d.ts" />
+import { Interceptor, FxiosRequestOption, RequestFunction, FxiosConfig } from './typings/index';
 export declare function isPlainObject(value: any): boolean;
 export declare const defaultRequestConfig: RequestInit;
 export declare const jsonType: string;

@@ -1,6 +1,6 @@
 {
   "name": "fxios",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "ajax fetch axios",
   "main": "index.js",
   "module": "dist/index.module.js",
@@ -66,7 +66,7 @@
       "git add"
     ]
   },
-  "typings": "typings/index.d.ts",
+  "typings": "index.d.ts",
   "jest": {
     "testEnvironment": "node",
     "testURL": "http://localhost",
