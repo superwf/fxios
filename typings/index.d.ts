@@ -27,7 +27,7 @@ export type RequestCallback = (
   option?: FxiosRequestOption,
   runtimeConfig?: FxiosConfig,
 ) => [string, FxiosRequestOption | undefined, FxiosConfig | undefined]
-export type CatchCallback = (err: Error, req: Request) => any
+export type CatchCallback = (err: Error, req: Request) => any | never
 
 // 拦截器
 export interface Interceptor {
