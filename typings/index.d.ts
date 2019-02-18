@@ -7,7 +7,7 @@ export interface FxiosRequestOption {
 
 // url query 对象
 export interface Query {
-  [index: string]: string
+  [index: string]: string | string[]
 }
 
 // 路由参数对象
