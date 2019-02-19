@@ -1,6 +1,6 @@
 {
   "name": "fxios",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "ajax fetch axios",
   "main": "index.js",
   "module": "dist/index.module.js",
@@ -28,12 +28,12 @@
   },
   "devDependencies": {
     "@types/events": "^1.2.0",
+    "@types/fetch-mock": "^7.2.3",
     "@types/jest": "^23.1.4",
     "@types/lodash": "^4.14.110",
     "@types/node": "^10.5.2",
     "@types/node-fetch": "^2.1.1",
     "babel-eslint": "^8.2.2",
-    "babel-jest": "^22.4.3",
     "babel-preset-react-app": "^3.1.1",
     "eslint": "^4.19.1",
     "eslint-config-react-app": "^2.1.0",
@@ -42,9 +42,9 @@
     "eslint-plugin-jsx-a11y": "^6.1.0",
     "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-react": "^7.10.0",
-    "fetch-mock": "^6.3.0",
+    "fetch-mock": "^7.3.0",
     "isomorphic-fetch": "^2.2.1",
-    "jest": "^23.6.0",
+    "jest": "^24.1.0",
     "lint-staged": "^7.0.4",
     "markdownlint": "^0.11.0",
     "markdownlint-cli": "^0.13.0",
@@ -52,7 +52,7 @@
     "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
-    "ts-jest": "^23.10.5",
+    "ts-jest": "^24.0.0",
     "ts-polyfill": "^3.0.1",
     "tslint": "^5.11.0",
     "tslint-eslint-rules": "^5.4.0",
@@ -77,7 +77,6 @@
       "./jest.setup.js"
     ],
     "transform": {
-      "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest",
       "^.+\\.(t|j)sx?$": "ts-jest"
     },
     "testRegex": "(/__test__/.*(test|spec))\\.(j|t)sx?$",

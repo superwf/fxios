@@ -1,9 +1,4 @@
-// 发起请求时的通用参数
-export interface FxiosRequestOption {
-  query?: Query
-  param?: Param
-  body?: any
-}
+import { UrlWithParsedQuery } from 'url'
 
 // url query 对象
 export interface Query {
@@ -12,7 +7,14 @@ export interface Query {
 
 // 路由参数对象
 export interface Param {
-  [index: string]: string
+  [index: string]: string | number
+}
+
+// 发起请求时的通用参数
+export interface FxiosRequestOption {
+  query?: Query
+  param?: Param
+  body?: any
 }
 
 // 实例化的配置参数
@@ -39,7 +41,7 @@ export interface Interceptor {
 export type RequestFunction = (
   url: string,
   option?: FxiosRequestOption,
-  runtimeConfig?: RequestInit,
+  runtimeConfig?: FxiosConfig,
 ) => Promise<any>
 
 export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch'
