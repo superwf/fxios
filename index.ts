@@ -39,6 +39,9 @@ export const jsonType: string = 'application/json'
 
 export const parseUrl = (url: string, option?: FxiosRequestOption): string => {
   if (option && option.param) {
+    for (let k of Object.keys(option.param)) {
+      option.param[k] = encodeURIComponent(option.param[k])
+    }
     url = pathToRegexp.compile(url)(option.param)
   }
   if (option && option.query) {
@@ -79,13 +82,7 @@ export class Fxios {
     this.fetchConfig = { ...requestConfig }
     this.baseURL = baseURL || ''
 
-    const methods: Array<HttpMethod> = [
-      'get',
-      'post',
-      'put',
-      'delete',
-      'patch',
-    ]
+    const methods: Array<HttpMethod> = ['get', 'post', 'put', 'delete', 'patch']
     methods.forEach((method: HttpMethod) => {
       this[method] = (
         url: string,
@@ -97,10 +94,10 @@ export class Fxios {
 
   extendHttpMethod(method: string): void {
     this[method] = (
-        url: string,
-        option?: FxiosRequestOption,
-        runtimeConfig?: RequestInit,
-      ): Promise<any> => this.request(method, url, option, runtimeConfig)
+      url: string,
+      option?: FxiosRequestOption,
+      runtimeConfig?: RequestInit,
+    ): Promise<any> => this.request(method, url, option, runtimeConfig)
   }
 
   async request(
@@ -110,13 +107,19 @@ export class Fxios {
     runtimeConfig?: FxiosConfig,
   ): Promise<any> {
     if (this.interceptor.request) {
-      [url, option, runtimeConfig] = await this.interceptor.request.call(this, url, option, runtimeConfig)
+      ;[url, option, runtimeConfig] = await this.interceptor.request.call(
+        this,
+        url,
+        option,
+        runtimeConfig,
+      )
     }
     const parsedUrl = parseUrl(url, option)
     if (runtimeConfig === undefined) {
       runtimeConfig = {}
     }
-    const baseURL = 'baseURL' in runtimeConfig ? runtimeConfig.baseURL : this.baseURL
+    const baseURL =
+      'baseURL' in runtimeConfig ? runtimeConfig.baseURL : this.baseURL
     const requestOption: FxiosConfig = {
       ...this.fetchConfig,
       method,

@@ -45,6 +45,9 @@ exports.defaultRequestConfig = {
 exports.jsonType = 'application/json';
 exports.parseUrl = (url, option) => {
     if (option && option.param) {
+        for (let k of Object.keys(option.param)) {
+            option.param[k] = encodeURIComponent(option.param[k]);
+        }
         url = pathToRegexp.compile(url)(option.param);
     }
     if (option && option.query) {
@@ -65,13 +68,7 @@ class Fxios {
         const { baseURL } = config, requestConfig = __rest(config, ["baseURL"]);
         this.fetchConfig = Object.assign({}, requestConfig);
         this.baseURL = baseURL || '';
-        const methods = [
-            'get',
-            'post',
-            'put',
-            'delete',
-            'patch',
-        ];
+        const methods = ['get', 'post', 'put', 'delete', 'patch'];
         methods.forEach((method) => {
             this[method] = (url, option, runtimeConfig) => this.request(method, url, option, runtimeConfig);
         });
@@ -82,6 +79,7 @@ class Fxios {
     request(method, url, option, runtimeConfig) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.interceptor.request) {
+                ;
                 [url, option, runtimeConfig] = yield this.interceptor.request.call(this, url, option, runtimeConfig);
             }
             const parsedUrl = exports.parseUrl(url, option);

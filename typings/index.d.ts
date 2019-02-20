@@ -7,7 +7,7 @@ export interface Query {
 
 // 路由参数对象
 export interface Param {
-  [index: string]: string | number
+  [index: string]: string
 }
 
 // 发起请求时的通用参数
