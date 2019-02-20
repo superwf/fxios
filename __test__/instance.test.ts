@@ -57,7 +57,7 @@ describe('fetch', () => {
       // })
       const fxios = new Fxios()
       return fxios[method]('/get/:name/edit/:id', {
-        param: { name: 'superwf', id: 33 },
+        param: { name: 'superwf', id: '33' },
       }).then((res: any) => {
         expect(res).toBeInstanceOf(Response)
         return res.text().then((d: any) => {
@@ -72,7 +72,7 @@ describe('fetch', () => {
       const fxios = new Fxios()
       const request = fxios[method]
       return request('/get/:name/edit/:id', {
-        param: { name: 'superwf', id: 33 },
+        param: { name: 'superwf', id: '33' },
       }).then(res => {
         expect(res).toBeInstanceOf(Response)
         return res.text().then((d: any) => {
@@ -304,6 +304,25 @@ describe('fetch', () => {
       .get('abc', {
         query: {
           type: ['a', 'b'],
+        },
+      })
+      .then(res => {
+        expect(res).toBeInstanceOf(Response)
+      })
+  })
+
+  it('测试url参数param中有乱码字符', () => {
+    const fxios = new Fxios({
+      baseURL: '/api/',
+    })
+    fetchMock.get(
+      '/api/%25EF%25BF%25BD%25EF%25BF%25BDt%25E7%259C%259F%25E5%25AE%259E18ww',
+      mockData.get,
+    )
+    return fxios
+      .get(':name', {
+        param: {
+          name: '��t真实18ww',
         },
       })
       .then(res => {
