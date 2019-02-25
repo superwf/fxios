@@ -1,4 +1,5 @@
 import { Fxios, jsonType, defaultRequestConfig, isPlainObject } from '../index'
+import { FxiosConfig } from '../typings'
 import { format, parse } from 'url'
 import fetchMock = require('fetch-mock')
 import { HttpMethod } from '../typings/index'
@@ -328,6 +329,20 @@ describe('fetch', () => {
       .then(res => {
         expect(res).toBeInstanceOf(Response)
       })
+  })
+
+  it('interceptor.request的runtimeConfig中包含请求的method', () => {
+    const fxios = new Fxios()
+    fxios.interceptor.request = (url, option, runtimeConfig) => {
+      expect((runtimeConfig as FxiosConfig).method).toBe('get')
+      return [url, option, runtimeConfig]
+    }
+    const url = mockUrls.get
+    fetchMock.get(url, mockData.get)
+    return fxios.get(url).then(res => {
+      expect(fetchMock.lastCall!()![0]).toBe('/get')
+      expect(res).toBeInstanceOf(Response)
+    })
   })
 
   describe('测试自定义http方法', () => {

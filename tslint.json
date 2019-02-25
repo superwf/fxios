@@ -1,7 +1,7 @@
 {
   "extends": ["tslint-react", "tslint-eslint-rules"],
   "rules": {
-    "align": [true, "parameters", "statements"],
+    "align": [true, "parameters"],
     "class-name": true,
     "comment-format": [true, "check-space"],
     "curly": true,

@@ -79,6 +79,11 @@ class Fxios {
     request(method, url, option, runtimeConfig) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.interceptor.request) {
+                if (!runtimeConfig) {
+                    runtimeConfig = {
+                        method,
+                    };
+                }
                 ;
                 [url, option, runtimeConfig] = yield this.interceptor.request.call(this, url, option, runtimeConfig);
             }

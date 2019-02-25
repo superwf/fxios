@@ -107,6 +107,12 @@ export class Fxios {
     runtimeConfig?: FxiosConfig,
   ): Promise<any> {
     if (this.interceptor.request) {
+      if (!runtimeConfig) {
+        runtimeConfig = {
+          method,
+        }
+      }
+
       ;[url, option, runtimeConfig] = await this.interceptor.request.call(
         this,
         url,
