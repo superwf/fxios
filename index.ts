@@ -106,13 +106,15 @@ export class Fxios {
     option?: FxiosRequestOption,
     runtimeConfig?: FxiosConfig,
   ): Promise<any> {
-    if (this.interceptor.request) {
-      if (!runtimeConfig) {
-        runtimeConfig = {
-          method,
-        }
+    method = method.toUpperCase()
+    if (runtimeConfig === undefined) {
+      runtimeConfig = {
+        method,
       }
-
+    } else {
+      runtimeConfig.method = method
+    }
+    if (this.interceptor.request) {
       ;[url, option, runtimeConfig] = await this.interceptor.request.call(
         this,
         url,
@@ -121,14 +123,12 @@ export class Fxios {
       )
     }
     const parsedUrl = parseUrl(url, option)
-    if (runtimeConfig === undefined) {
-      runtimeConfig = {}
-    }
     const baseURL =
-      'baseURL' in runtimeConfig ? runtimeConfig.baseURL : this.baseURL
+      runtimeConfig && 'baseURL' in runtimeConfig
+        ? runtimeConfig.baseURL
+        : this.baseURL
     const requestOption: FxiosConfig = {
       ...this.fetchConfig,
-      method,
       ...runtimeConfig,
     }
     let headers: HeadersInit = requestOption.headers || {}

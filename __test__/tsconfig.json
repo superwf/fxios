@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
-    "allowJs": true
+    "allowJs": true,
+    "lib": ["dom", "es2015", "es5", "es6"]
   }
 }

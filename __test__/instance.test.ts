@@ -113,25 +113,6 @@ describe('fetch', () => {
       })
     })
 
-    // it(`${method}方法，测试定制headers`, () => {
-    //   const headers = {
-    //     'X-Request': 'power',
-    //   }
-    //   const fxios = new Fxios({ headers })
-    //   ;(<fetchMockMethod>fetchMock[method])(`${mockUrls.get}/abc`, mockData.get)
-    //   fxios.interceptor.request = (url, option, runtimeConfig) => {
-    //     return [`${url}/abc`, option, runtimeConfig]
-    //   }
-    //   return fxios[method](mockUrls.get).then(res => {
-    //     // const lastCall = fetchMock.lastCall()
-    //     const lastPost = fetchMock.lastCall()!.request!
-    //     expect(lastPost.headers).toEqual({
-    //       'x-request': ['power'],
-    //     })
-    //     expect(res).toBeInstanceOf(Response)
-    //   })
-    // })
-
     if (method !== 'get') {
       it(`${method}方法，测试定制headers，与提交对象是自动添加的json header`, () => {
         const headers = {
@@ -334,7 +315,7 @@ describe('fetch', () => {
   it('interceptor.request的runtimeConfig中包含请求的method', () => {
     const fxios = new Fxios()
     fxios.interceptor.request = (url, option, runtimeConfig) => {
-      expect((runtimeConfig as FxiosConfig).method).toBe('get')
+      expect((runtimeConfig as FxiosConfig).method).toBe('GET')
       return [url, option, runtimeConfig]
     }
     const url = mockUrls.get
@@ -350,13 +331,13 @@ describe('fetch', () => {
       const fxios = new Fxios({})
       expect('trace' in fxios).toBe(false)
       fxios.extendHttpMethod('trace')
-      expect('trace' in fxios).not.toBe(false)
+      expect('trace' in fxios).toBe(true)
 
       const url = '/xxx/abc'
       fetchMock.mock(url, 200)
       await fxios.trace(url)
       const lastPost = fetchMock.lastCall()!.request!
-      expect(lastPost.method).toBe('trace')
+      expect(lastPost.method).toBe('TRACE')
     })
   })
 })
