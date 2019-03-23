@@ -78,21 +78,24 @@ class Fxios {
     }
     request(method, url, option, runtimeConfig) {
         return __awaiter(this, void 0, void 0, function* () {
+            method = method.toUpperCase();
+            if (runtimeConfig === undefined) {
+                runtimeConfig = {
+                    method,
+                };
+            }
+            else {
+                runtimeConfig.method = method;
+            }
             if (this.interceptor.request) {
-                if (!runtimeConfig) {
-                    runtimeConfig = {
-                        method,
-                    };
-                }
                 ;
                 [url, option, runtimeConfig] = yield this.interceptor.request.call(this, url, option, runtimeConfig);
             }
             const parsedUrl = exports.parseUrl(url, option);
-            if (runtimeConfig === undefined) {
-                runtimeConfig = {};
-            }
-            const baseURL = 'baseURL' in runtimeConfig ? runtimeConfig.baseURL : this.baseURL;
-            const requestOption = Object.assign({}, this.fetchConfig, { method }, runtimeConfig);
+            const baseURL = runtimeConfig && 'baseURL' in runtimeConfig
+                ? runtimeConfig.baseURL
+                : this.baseURL;
+            const requestOption = Object.assign({}, this.fetchConfig, runtimeConfig);
             let headers = requestOption.headers || {};
             if (option && option.body) {
                 let { body } = option;
@@ -103,20 +106,19 @@ class Fxios {
                 requestOption.body = body;
             }
             const req = new Request(`${baseURL}${parsedUrl}`, requestOption);
-            let promise = fetch(req);
-            promise = promise.then(res => {
+            return fetch(req)
+                .then(res => {
                 if (this.interceptor.response !== undefined) {
                     return this.interceptor.response.call(this, res, req);
                 }
                 return res;
-            });
-            promise = promise.catch(err => {
+            })
+                .catch(err => {
                 if (this.interceptor.catch !== undefined) {
                     return this.interceptor.catch.call(this, err, req);
                 }
                 throw err;
             });
-            return promise;
         });
     }
 }

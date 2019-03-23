@@ -23,7 +23,13 @@ export interface FxiosConfig extends RequestInit {
 }
 
 // 实例化的配置参数
-export type ResponseCallback = (res: any, req: Request) => any
+// export type ResponseCallback = <T>(res: any, req: Request) => Promise<T>
+
+export interface ResponseCallback {
+  <T>(res: any, req: Request): T | void
+  call: <T>(v: any, res: any, req: Request) => T | void
+}
+
 export type RequestCallback = (
   url: string,
   option?: FxiosRequestOption,

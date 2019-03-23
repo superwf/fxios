@@ -100,12 +100,12 @@ export class Fxios {
     ): Promise<any> => this.request(method, url, option, runtimeConfig)
   }
 
-  async request(
+  async request<T>(
     method: string,
     url: string,
     option?: FxiosRequestOption,
     runtimeConfig?: FxiosConfig,
-  ): Promise<any> {
+  ): Promise<T | Response> {
     method = method.toUpperCase()
     if (runtimeConfig === undefined) {
       runtimeConfig = {
@@ -144,21 +144,18 @@ export class Fxios {
       requestOption.body = body
     }
     const req: Request = new Request(`${baseURL}${parsedUrl}`, requestOption)
-    let promise = fetch(req)
-
-    promise = promise.then(res => {
-      if (this.interceptor.response !== undefined) {
-        return this.interceptor.response.call(this, res, req)
-      }
-      return res
-    })
-
-    promise = promise.catch(err => {
-      if (this.interceptor.catch !== undefined) {
-        return this.interceptor.catch.call(this, err, req)
-      }
-      throw err
-    })
-    return promise
+    return fetch(req)
+      .then(res => {
+        if (this.interceptor.response !== undefined) {
+          return this.interceptor.response.call<T>(this, res, req)
+        }
+        return res
+      })
+      .catch(err => {
+        if (this.interceptor.catch !== undefined) {
+          return this.interceptor.catch.call(this, err, req)
+        }
+        throw err
+      })
   }
 }

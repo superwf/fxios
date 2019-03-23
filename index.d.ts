@@ -16,5 +16,5 @@ export declare class Fxios {
     [key: string]: any;
     constructor(config?: FxiosConfig);
     extendHttpMethod(method: string): void;
-    request(method: string, url: string, option?: FxiosRequestOption, runtimeConfig?: FxiosConfig): Promise<any>;
+    request<T>(method: string, url: string, option?: FxiosRequestOption, runtimeConfig?: FxiosConfig): Promise<T | Response>;
 }
