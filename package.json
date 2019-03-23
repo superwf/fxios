@@ -1,6 +1,6 @@
 {
   "name": "fxios",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "description": "ajax fetch axios",
   "main": "index.js",
   "module": "dist/index.module.js",

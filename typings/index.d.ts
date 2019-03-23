@@ -44,10 +44,10 @@ export interface Interceptor {
   catch?: CatchCallback
 }
 
-export type RequestFunction = (
+export type RequestFunction = <T>(
   url: string,
   option?: FxiosRequestOption,
   runtimeConfig?: FxiosConfig,
-) => Promise<any>
+) => Promise<T | Response>
 
 export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch'

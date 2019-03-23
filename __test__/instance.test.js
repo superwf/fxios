@@ -38,7 +38,7 @@ describe('fetch', () => {
     it('get方法，无intern.response，直接获取Response类型数据', () => __awaiter(this, void 0, void 0, function* () {
         const fxios = new index_1.Fxios();
         fetchMock.get(mockUrls.get, mockData.get);
-        const res = yield fxios.get(mockUrls.get);
+        const res = (yield fxios.get(mockUrls.get));
         expect(res).toBeInstanceOf(Response);
         return res.json().then((d) => {
             expect(d).toEqual(mockData.get);
@@ -70,7 +70,7 @@ describe('fetch', () => {
             const request = fxios[method];
             return request('/get/:name/edit/:id', {
                 param: { name: 'superwf', id: '33' },
-            }).then(res => {
+            }).then((res) => {
                 expect(res).toBeInstanceOf(Response);
                 return res.text().then((d) => {
                     expect(d).toEqual(JSON.stringify(mockData.get));
@@ -81,7 +81,7 @@ describe('fetch', () => {
             ;
             fetchMock[method](mockUrls.get, mockData.get);
             const fxios = new index_1.Fxios();
-            return fxios[method](mockUrls.get).then(res => {
+            return fxios[method](mockUrls.get).then((res) => {
                 expect(res).toBeInstanceOf(Response);
                 return res.text().then((d) => {
                     expect(d).toEqual(JSON.stringify(mockData.get));
@@ -99,7 +99,7 @@ describe('fetch', () => {
         it(`${method}方法，测试res.text()`, () => {
             const fxios = new index_1.Fxios();
             fetchMock[method](mockUrls.get, mockData.get);
-            return fxios[method](mockUrls.get).then(res => {
+            return fxios[method](mockUrls.get).then((res) => {
                 expect(res).toBeInstanceOf(Response);
                 return res.text().then((d) => {
                     expect(d).toEqual(JSON.stringify(mockData.get));

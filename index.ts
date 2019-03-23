@@ -84,11 +84,11 @@ export class Fxios {
 
     const methods: Array<HttpMethod> = ['get', 'post', 'put', 'delete', 'patch']
     methods.forEach((method: HttpMethod) => {
-      this[method] = (
+      this[method] = <T>(
         url: string,
         option?: FxiosRequestOption,
         runtimeConfig?: RequestInit,
-      ): Promise<any> => this.request(method, url, option, runtimeConfig)
+      ) => this.request<T>(method, url, option, runtimeConfig)
     })
   }
 
@@ -105,7 +105,7 @@ export class Fxios {
     url: string,
     option?: FxiosRequestOption,
     runtimeConfig?: FxiosConfig,
-  ): Promise<T | Response> {
+  ): Promise<T | Response | any> {
     method = method.toUpperCase()
     if (runtimeConfig === undefined) {
       runtimeConfig = {
