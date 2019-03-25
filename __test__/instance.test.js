@@ -163,11 +163,15 @@ describe('fetch', () => {
             expect(res).toBeInstanceOf(Response);
         });
     });
-    it('get方法，通过interceptor处理数据', () => {
+    it('get方法，通过interceptor处理数据', () => __awaiter(this, void 0, void 0, function* () {
         const fxios = new index_1.Fxios();
         fetchMock.get(mockUrls.get, mockData.get);
         class FError extends Error {
         }
+        const r = {
+            name: 'asdfasdf',
+            age: 12,
+        };
         fxios.interceptor.response = (res, req) => {
             if (!res.ok) {
                 const error = new FError(res.statusText);
@@ -179,10 +183,10 @@ describe('fetch', () => {
                 return data;
             });
         };
-        return fxios.get(mockUrls.get).then(res => {
-            expect(res).toEqual(mockData.get);
-        });
-    });
+        const res = yield fxios.request('get', mockUrls.get);
+        expect(res).toEqual(mockData.get);
+        // })
+    }));
     it('post方法，测试post object', () => __awaiter(this, void 0, void 0, function* () {
         const data = { name: '123' };
         const fxios = new index_1.Fxios();
@@ -223,6 +227,7 @@ describe('fetch', () => {
             if (res.status !== 200) {
                 throw new Error(res.status);
             }
+            return res;
         };
         const init = { status: 404 };
         const res = new Response(undefined, init);
@@ -235,6 +240,7 @@ describe('fetch', () => {
             if (res.status !== 200) {
                 throw new Error(res.status);
             }
+            return res;
         };
         const init = { status: 404 };
         const res = new Response(undefined, init);

@@ -61,11 +61,7 @@ export const parseUrl = (url: string, option?: FxiosRequestOption): string => {
 
 export class Fxios {
   baseURL: string
-  interceptor: Interceptor = {
-    request: undefined,
-    response: undefined,
-    catch: undefined,
-  }
+  interceptor: Interceptor = {}
 
   fetchConfig: RequestInit
   get: RequestFunction
@@ -84,28 +80,28 @@ export class Fxios {
 
     const methods: Array<HttpMethod> = ['get', 'post', 'put', 'delete', 'patch']
     methods.forEach((method: HttpMethod) => {
-      this[method] = <T>(
+      this[method] = <T = Response>(
         url: string,
         option?: FxiosRequestOption,
         runtimeConfig?: RequestInit,
-      ) => this.request<T>(method, url, option, runtimeConfig)
+      ): Promise<T> => this.request<T>(method, url, option, runtimeConfig)
     })
   }
 
   extendHttpMethod(method: string): void {
-    this[method] = (
+    this[method] = <T>(
       url: string,
       option?: FxiosRequestOption,
       runtimeConfig?: RequestInit,
-    ): Promise<any> => this.request(method, url, option, runtimeConfig)
+    ): Promise<T> => this.request<T>(method, url, option, runtimeConfig)
   }
 
-  async request<T>(
+  async request<T = Response>(
     method: string,
     url: string,
     option?: FxiosRequestOption,
     runtimeConfig?: FxiosConfig,
-  ): Promise<T | Response | any> {
+  ) {
     method = method.toUpperCase()
     if (runtimeConfig === undefined) {
       runtimeConfig = {
@@ -145,13 +141,13 @@ export class Fxios {
     }
     const req: Request = new Request(`${baseURL}${parsedUrl}`, requestOption)
     return fetch(req)
-      .then(res => {
+      .then<T>(res => {
         if (this.interceptor.response !== undefined) {
-          return this.interceptor.response.call<T>(this, res, req)
+          return this.interceptor.response.call(this, res, req)
         }
-        return res
+        return (res as unknown) as T
       })
-      .catch(err => {
+      .catch((err: any) => {
         if (this.interceptor.catch !== undefined) {
           return this.interceptor.catch.call(this, err, req)
         }

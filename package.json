@@ -1,6 +1,6 @@
 {
   "name": "fxios",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "ajax fetch axios",
   "main": "index.js",
   "module": "dist/index.module.js",
@@ -79,7 +79,7 @@
     "transform": {
       "^.+\\.(t|j)sx?$": "ts-jest"
     },
-    "testRegex": "(/__test__/.*(test|spec))\\.(j|t)sx?$",
+    "testRegex": "(/__test__/.*(test|spec))\\.tsx?$",
     "moduleFileExtensions": [
       "ts",
       "tsx",

@@ -60,11 +60,7 @@ exports.parseUrl = (url, option) => {
 };
 class Fxios {
     constructor(config = exports.defaultRequestConfig) {
-        this.interceptor = {
-            request: undefined,
-            response: undefined,
-            catch: undefined,
-        };
+        this.interceptor = {};
         const { baseURL } = config, requestConfig = __rest(config, ["baseURL"]);
         this.fetchConfig = Object.assign({}, requestConfig);
         this.baseURL = baseURL || '';
@@ -113,7 +109,7 @@ class Fxios {
                 }
                 return res;
             })
-                .catch(err => {
+                .catch((err) => {
                 if (this.interceptor.catch !== undefined) {
                     return this.interceptor.catch.call(this, err, req);
                 }

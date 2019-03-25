@@ -23,12 +23,12 @@ export interface FxiosConfig extends RequestInit {
 }
 
 // 实例化的配置参数
-// export type ResponseCallback = <T>(res: any, req: Request) => Promise<T>
+export type ResponseCallback = (res: any, req: Request) => any
 
-export interface ResponseCallback {
-  <T>(res: any, req: Request): T | void
-  call: <T>(v: any, res: any, req: Request) => T | void
-}
+// export interface ResponseCallback {
+//   <T>(res: any, req: Request): Promise<T> | T
+//   call: <T>(v: any, res: any, req: Request) => Promise<T> | T
+// }
 
 export type RequestCallback = (
   url: string,
@@ -44,10 +44,10 @@ export interface Interceptor {
   catch?: CatchCallback
 }
 
-export type RequestFunction = <T>(
+export type RequestFunction = <T = Response>(
   url: string,
   option?: FxiosRequestOption,
   runtimeConfig?: FxiosConfig,
-) => Promise<T | Response>
+) => Promise<T>
 
 export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch'
