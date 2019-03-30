@@ -13,7 +13,7 @@
 * 添加umd加载格式
 
 ```
-<script src="//unpkg.com/fxios@2.1.0/dist/index.min.js"></script>
+<script src="//unpkg.com/fxios@latest/dist/index.min.js"></script>
 ```
 
 ## 版本2.0变更记录

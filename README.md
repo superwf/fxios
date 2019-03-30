@@ -13,7 +13,7 @@
 * add umd format.
 
 ```
-<script src="//unpkg.com/fxios@2.1.0/dist/index.min.js"></script>
+<script src="//unpkg.com/fxios@latest/dist/index.min.js"></script>
 ```
 
 ## version 2 changelog
