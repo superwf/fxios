@@ -1,8 +1,8 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "esnext",
+    "module": "commonjs",
+    "target": "es5",
     "noImplicitAny": true,
     "noUnusedParameters": false,
     "noUnusedLocals": false,

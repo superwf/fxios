@@ -30,25 +30,22 @@ const umdConfig = {
 }
 
 export default [
-  // not work for `declaration` option
-  // {
-  //   external: ['path-to-regexp', 'url'],
-  //   input: 'index.ts',
-  //   output: {
-  //     file: pkg.module,
-  //     format: 'esm',
-  //     globals: 'fetch',
-  //   },
-  //   plugins: [
-  //     typescript({
-  //       target: 'esnext',
-  //       declaration: true,
-  //       declarationDir: 'dist',
-  //     }),
-  //     resolve(),
-  //     commonjs(),
-  //   ],
-  // },
+  {
+    external: ['path-to-regexp', 'url'],
+    input: 'index.ts',
+    output: {
+      file: pkg.module,
+      format: 'esm',
+      globals: 'fetch',
+    },
+    plugins: [
+      typescript({
+        target: 'esnext',
+      }),
+      resolve(),
+      commonjs(),
+    ],
+  },
   umdConfig,
   {
     ...umdConfig,
