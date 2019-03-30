@@ -1,8 +1,13 @@
-import { Fxios, jsonType, defaultRequestConfig, isPlainObject } from '../index'
-import { FxiosConfig } from '../typings'
+import {
+  HttpMethod,
+  FxiosConfig,
+  Fxios,
+  jsonType,
+  defaultRequestConfig,
+  isPlainObject,
+} from '../index'
 import { format, parse } from 'url'
 import fetchMock = require('fetch-mock')
-import { HttpMethod } from '../typings/index'
 
 const mockData = {
   get: { code: 'success', message: 'ok', data: [] },

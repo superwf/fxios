@@ -1,23 +1,61 @@
+import builtins from 'rollup-plugin-node-builtins'
 import resolve from 'rollup-plugin-node-resolve'
+import { uglify } from 'rollup-plugin-uglify'
+import typescript from 'rollup-plugin-typescript'
 import commonjs from 'rollup-plugin-commonjs'
 import pkg from './package.json'
 
-export default [
-  {
-    external: ['isomorphic-fetch', 'lodash/merge'],
-    input: 'index.js',
-    output: {
-      name: 'fetch-maker',
-      file: pkg.main,
-      format: 'umd',
-    },
-    plugins: [
-      resolve(), // so Rollup can find `ms`
-      commonjs(), // so Rollup can convert `ms` to an ES module
-    ],
+const umdConfig = {
+  input: 'index.ts',
+  output: {
+    name: 'Fxios',
+    file: pkg.main,
+    sourcemap: true,
+    format: 'umd',
+    globals: 'fetch',
   },
+  plugins: [
+    typescript({
+      target: 'es5',
+      sourceMap: true,
+      declaration: true,
+      declarationDir: 'dist',
+    }),
+    builtins({ url: true }),
+    resolve({
+      preferBuiltins: true,
+    }),
+    commonjs(),
+  ],
+}
+
+export default [
+  // {
+  //   external: ['path-to-regexp', 'url'],
+  //   input: 'index.ts',
+  //   output: {
+  //     file: pkg.module,
+  //     format: 'esm',
+  //     globals: 'fetch',
+  //   },
+  //   plugins: [
+  //     typescript({
+  //       target: 'esnext',
+  //       declaration: true,
+  //       declarationDir: 'dist',
+  //     }),
+  //     resolve(),
+  //     commonjs(),
+  //   ],
+  // },
+  umdConfig,
   {
-    input: 'index.js',
-    output: [{ file: pkg.module, format: 'es' }],
+    ...umdConfig,
+    output: {
+      ...umdConfig.output,
+      file: 'dist/index.min.js',
+      sourcemap: false,
+    },
+    plugins: [...umdConfig.plugins, uglify()],
   },
 ]

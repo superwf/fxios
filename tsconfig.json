@@ -1,16 +1,21 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
+    "module": "ESNext",
+    "target": "esnext",
     "noImplicitAny": true,
     "noUnusedParameters": false,
     "noUnusedLocals": false,
     "strictNullChecks": true,
+    "declaration": true,
+    "declarationDir": "module",
+    "listEmittedFiles": true,
+    "sourceMap": true,
     "preserveConstEnums": true,
-    "sourceMap": false,
     "moduleResolution": "node",
     "noImplicitUseStrict": true,
+    "outDir": "module",
     "lib": ["dom", "es2015", "es5", "es6"]
-  }
+  },
+  "include": ["index.ts"]
 }
