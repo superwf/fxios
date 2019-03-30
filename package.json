@@ -1,6 +1,6 @@
 {
   "name": "fxios",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "ajax fetch axios",
   "main": "index.js",
   "umd:main": "dist/index.js",
@@ -26,7 +26,7 @@
   "author": "superwf@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "path-to-regexp": "^2.2.1",
+    "path-to-regexp": "^3.0.0",
     "url": "^0.11.0"
   },
   "devDependencies": {
@@ -55,7 +55,6 @@
     "prettier": "^1.12.1",
     "rollup": "^1.7.4",
     "rollup-plugin-commonjs": "^9.2.2",
-    "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-resolve": "^4.0.1",
     "rollup-plugin-typescript": "^1.0.1",
     "rollup-plugin-uglify": "^6.0.2",

@@ -1,4 +1,3 @@
-import builtins from 'rollup-plugin-node-builtins'
 import resolve from 'rollup-plugin-node-resolve'
 import { uglify } from 'rollup-plugin-uglify'
 import typescript from 'rollup-plugin-typescript'
@@ -21,9 +20,9 @@ const umdConfig = {
       declaration: true,
       declarationDir: 'dist',
     }),
-    builtins({ url: true }),
+    // builtins({ url: true }),
     resolve({
-      preferBuiltins: true,
+      preferBuiltins: false,
     }),
     commonjs(),
   ],
