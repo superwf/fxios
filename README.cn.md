@@ -8,6 +8,14 @@
 
 ## 注意! 2.0版本接口变动较大，对之前的版本api进行了一些不兼容修改
 
+## 版本2.1变更记录
+
+* 添加umd加载格式
+
+```
+<script src="//unpkg.com/fxios@2.1.0/dist/index.min.js"></script>
+```
+
 ## 版本2.0变更记录
 
 * new Fxios(config)，`config`参数中的`base`属性改为`baseURL`，在实际发起请求的`runtimeConfig`中对应的属性也改为了`baseURL`。

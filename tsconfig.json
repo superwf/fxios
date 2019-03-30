@@ -8,13 +8,11 @@
     "noUnusedLocals": false,
     "strictNullChecks": true,
     "declaration": true,
-    "declarationDir": "module",
     "listEmittedFiles": true,
     "sourceMap": true,
     "preserveConstEnums": true,
     "moduleResolution": "node",
     "noImplicitUseStrict": true,
-    "outDir": "module",
     "lib": ["dom", "es2015", "es5", "es6"]
   },
   "include": ["index.ts"]

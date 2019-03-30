@@ -8,6 +8,14 @@
 
 ## Notice! latest version 2 has some break changes with previous version
 
+## version 2.1 changelog
+
+* add umd format.
+
+```
+<script src="//unpkg.com/fxios@2.1.0/dist/index.min.js"></script>
+```
+
 ## version 2 changelog
 
 * new Fxios(config) changed, change `base` to `baseURL`, to keep same data structure with the `runtimeConfig`.

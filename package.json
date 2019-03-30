@@ -1,10 +1,12 @@
 {
   "name": "fxios",
-  "version": "2.0.12",
+  "version": "2.1.0",
   "description": "ajax fetch axios",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "module": "module/index.js",
+  "main": "index.js",
+  "umd:main": "dist/index.js",
+  "unpkg": "dist/index.min.js",
+  "types": "index.d.ts",
+  "module": "index.js",
   "scripts": {
     "start": "jest --watch",
     "test": "jest",

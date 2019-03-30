@@ -9,7 +9,7 @@ const umdConfig = {
   input: 'index.ts',
   output: {
     name: 'Fxios',
-    file: pkg.main,
+    file: pkg['umd:main'],
     sourcemap: true,
     format: 'umd',
     globals: 'fetch',
@@ -30,6 +30,7 @@ const umdConfig = {
 }
 
 export default [
+  // not work for `declaration` option
   // {
   //   external: ['path-to-regexp', 'url'],
   //   input: 'index.ts',
@@ -53,7 +54,7 @@ export default [
     ...umdConfig,
     output: {
       ...umdConfig.output,
-      file: 'dist/index.min.js',
+      file: pkg.unpkg,
       sourcemap: false,
     },
     plugins: [...umdConfig.plugins, uglify()],
