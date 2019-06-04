@@ -7,7 +7,7 @@ import pkg from './package.json'
 const umdConfig = {
   input: 'index.ts',
   output: {
-    name: 'Fxios',
+    name: 'fxios',
     file: pkg['umd:main'],
     sourcemap: true,
     format: 'umd',

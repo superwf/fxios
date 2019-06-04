@@ -39,6 +39,8 @@ export interface IFxiosRequestOption extends RequestInit {
   url: string
 }
 
+export type FxiosRequestOption = IFxiosRequestOption | string
+
 // 实例化的配置参数
 export interface IFxiosConfig extends RequestInit {
   baseURL?: string
@@ -48,8 +50,8 @@ export interface IFxiosConfig extends RequestInit {
 export type ResponseInterceptor = (res: any, req: Request) => any
 
 export type RequestInterceptor = (
-  option?: IFxiosRequestOption,
-) => IFxiosRequestOption
+  option?: FxiosRequestOption,
+) => FxiosRequestOption
 
 export type CatchInterceptor = (err: Error, req: Request) => any | never
 
@@ -61,7 +63,7 @@ export interface IInterceptor {
 }
 
 export type RequestFunction = <T = Response>(
-  option?: IFxiosRequestOption,
+  option?: FxiosRequestOption,
 ) => Promise<T>
 
 // copy from lodash
@@ -171,11 +173,18 @@ export class Fxios {
           return Reflect.get(target, key, receiver)
         }
         if (methods.includes(key)) {
-          const method = (option: IFxiosRequestOption) => {
+          const method = (option: FxiosRequestOption) => {
             if (!option) {
               option = { url: '', method: 'get' }
             }
-            option.method = key
+            if (typeof option === 'string') {
+              option = {
+                method: key,
+                url: option,
+              }
+            } else {
+              option.method = key
+            }
             return target.request(option)
           }
           Reflect.set(target, key, method)
@@ -185,9 +194,15 @@ export class Fxios {
     })
   }
 
-  public async request(option: IFxiosRequestOption) {
+  public async request(option: FxiosRequestOption) {
     if (this.interceptor.request) {
       option = this.interceptor.request(option)
+    }
+    if (typeof option === 'string') {
+      option = {
+        method: 'get',
+        url: option,
+      }
     }
     option.method = option.method || 'get'
     const baseURL = option.baseURL || this.baseURL

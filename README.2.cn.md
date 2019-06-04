@@ -1,6 +1,6 @@
 # Fxios
 
-## 介绍 [English doc](./README.md)
+## 介绍 [English doc](./README.2.md)
 
 ## 开发过程参照了axios的接口设计，使用typescript编写，对原生fetch进行封装
 

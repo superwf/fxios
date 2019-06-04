@@ -300,4 +300,27 @@ describe('fetch', () => {
       method: 'get',
     })
   })
+
+  it('test string option in request', async () => {
+    const f = Fxios.create()
+    fetchMock.mockResponseOnce(JSON.stringify(mockData.get))
+    await f.request('/abc')
+    expect(fetchMock).toHaveBeenLastCalledWith('/abc', {
+      method: 'get',
+    })
+  })
+
+  it('test string option in get', async () => {
+    const f = Fxios.create()
+    fetchMock.mockResponse(JSON.stringify(mockData.get))
+    await f.get('/abc')
+    expect(fetchMock).toHaveBeenLastCalledWith('/abc', {
+      method: 'get',
+    })
+
+    await f.put('/put')
+    expect(fetchMock).toHaveBeenLastCalledWith('/put', {
+      method: 'put',
+    })
+  })
 })

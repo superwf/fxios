@@ -1,187 +1,202 @@
-# Fxios v3
+# Fxios V3
 
 ## 介绍 [English doc](./README.md)
 
-## 开发过程参照了axios的接口设计，使用typescript编写，对原生fetch进行封装
+[v2 doc](./README.2.cn.md)
 
-## fxios = fetch + axios
+开发过程参照了axios的接口设计，使用typescript编写，对原生fetch进行封装
 
+fxios = fetch + axios
+
+## 使用
+
+### 浏览器使用
+
+```html
+<script src="//unpkg.com/fxios"></script>
+<script type="application/javascript">
+fxios.get(...)
+fxios.post(...)
+
+const f1 = fxios.create({
+  baseURL: '/api',
+})
+</script>
 ```
-<script src="//unpkg.com/fxios@latest/dist/index.min.js"></script>
-```
 
-## 安装
+### 本地安装
 
 ```bash
 npm install fxios
+// 或
+yarn add fxios
 ```
 
-## 例子
+### 默认export一个可用实例
 
-```javascript
-import { Fxios } from 'fxios'
+```typescript
+import fxios from 'fxios'
 
 type ResType = {success: boolean}
 
-const fxios = new Fxios()
 async function createUser() {
   const result = await fxios.post<ResType>('/api/user', { body: { name: 'abc' } })
   return result
 }
 ```
 
-其他例子参考: [example.js](./example.js)
+其他例子参考: [example.ts](./example.ts)
 
-## 使用方法
-
-### 类方法: 生成实例
+### 生成新实例
 
 ```js
-import { Fxios } from 'fxios'
-const fxios = new Fxios(config)
-```
+// 默认export一个实例
+import fxios, { Fxios } from 'fxios'
 
-若传入`config`则将与default进行合并，传入的`config`项将覆盖`defaultConfig`。
+const f1 = new Fxios(config)
+// 或
+const f2 = Fxios.create(config)
+// 或
+const f3 = fxios.create(config)
+```
 
 在生成实例时的参数类型为`FxiosConfig`，数据结构如下:
 
-```javascript
+```typescript
 {
   // 类似axios的baseURL，会自动添加到每次请求的url前面，默认为空。
   baseURL: '',
   // 除了baseURL之外的其他属性，都应是原生fetch可接受的属性。
   // 其他属性参照 https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+  body?: BodyInit | null;
+  cache?: RequestCache;
+  credentials?: RequestCredentials;
+  headers?: HeadersInit;
+  integrity?: string;
+  keepalive?: boolean;
+  method?: string;
+  mode?: RequestMode;
+  redirect?: RequestRedirect;
+  referrer?: string;
+  referrerPolicy?: ReferrerPolicy;
+  signal?: AbortSignal | null;
+  window?: any;
 }
 ```
 
-在运行时的runtimeConfig将会与创建实例时的config合并使用，有重名属性时`runtimeConfig`内的值会覆盖生成实例时的`config`对应的值。
+在请求是传入的参数会覆盖实例本身的config对应的值。
+例如
 
+```typescript
 
-#### 实例Api
+fxios.get({
+  url: '/api/users',
+  mode: 'cors',
+})
 
-```javascript
-const fxios = new Fxios()
 ```
 
-fxios#get(url: string[, option: [FxiosOption](#option), runtimeConfig: [FxiosConfig](#runtimeConfig) ])
+### 实例Api
 
-fxios#post(url: string[, option: [FxiosOption](#option), runtimeConfig: [FxiosConfig](#runtimeConfig) ])
+fxios#request<T>(option: IFxiosRequestOption | string)
 
-fxios#put(url: string[, option: [FxiosOption](#option), runtimeConfig: [FxiosConfig](#runtimeConfig) ])
+如果请求option为string则用get方法请求该url
+例如：
 
-fxios#patch(url: string[, option: [FxiosOption](#option), runtimeConfig: [FxiosConfig](#runtimeConfig) ])
+```typescript
+fxios.get('/api/users')
+```
 
-fxios#delete(url: string[, option: [FxiosOption](#option), runtimeConfig: [FxiosConfig](#runtimeConfig) ])
+其他所有情况，都用IFxiosRequestOption的对象方式传入参数，
+例如：
+
+```typescript
+fxios.post({
+  url: '/users',
+  body: {
+    name: 'abc',
+  },
+  headers: {
+    ...,
+  },
+})
+```
+
+请求参数IFxiosRequestOption数据结构
+
+```typescript
+export interface IFxiosRequestOption extends RequestInit {
+  query?: {
+    [index: string]: string | string[] | number | number[] | boolean | boolean[] | undefined
+  }
+  body?: any
+  path?: {
+    [index: string]: string | number | boolean | undefined
+  }
+  formData?: any
+  baseURL?: string
+  url: string
+}
+```
+
+以下方法都是request方法的简写形式，将方法名作为http请求的method，其他参数与request方法一致。
+
+fxios#get
+
+fxios#post
+
+fxios#put
+
+fxios#patch
+
+fxios#delete
+
+fxios#head
+
+fxios#options
 
 以上的每个方法都已经与fxios实例绑定，在调用时不需要再`bind(fxios)`实例
 
-```javascript
+```typescript
 const get = fxios.get
 ...
 get(...) // 与调用fxios.get(...)相同，已经绑定fxios为get内的this
 ```
 
-#### version 2 新增 `extendHttpMethod`方法。
+path参数为路径参数，如下：
+会在请求时自动替换为'/api/user/124/edit'。
 
-如果需要除上述基础方法之外的http请求，可以通过`extendHttpMethod`扩展fxios实例的方法。例如需要扩展`head`方法
-
-```javascript
-fxios.extendHttpMethod('head')
-// 然后即可调用head方法
-fxios.head(url, option, runtimeConfig)
-```
-
-### FxiosOption，发起get, post等请求时的在url参数后面的第二个参数。
-
-普通js对象, 有一下三个属性，都是可选属性。
-
-```javascript
-{
-  query?: [Query](#query)
-  param?: [Param](#param)
-  body?: any
-}
-```
-
-由于get方法不应该有请求体，当使用get方法时，body属性没有意义，会引起fetch运行错误。
-
-### Query，挂在url上以`?`开头的请求参数
-
-普通js对象，在请求时会被自动转换为字符串，例如`{ name: 'abc' }` => `'name=abc'`
-
-#### Param，路由参数
-
-当请求的url上有以`:`标识的路由参数时，对应名称的参数会用param中对应属性的值自动进行替换。
-
-例如
-
-```javascript
-fxios.get('/api/user/:id/edit', {
-  param: {
+```typescript
+fxios.get({
+  url: '/api/user/:id/edit',
+  path: {
     id: '124'
   }
 })
 ```
 
-会在请求时自动替换为'/api/user/124/edit'。
-
-#### FxiosOption中的body属性，请求体可以是以下这些类型
-
-ArrayBuffer | ArrayBufferView | NodeJS.ReadableStream | string | URLSearchParams | FormData
+body属性，可以是普通对象则自动调用JSON.stringify，并自动在header中添加`{'Content-Type': 'application/json'}`
+其他类型的body都会直接传入fetch
 
 例如
 
-```javascript
+```typescript
 fxios.post('/api/user', {
-  body: 'abc' // 或 new FormData(...) 等可以转化为请求体的类型
+  body: 'abc', // 或 { name: 'abc' }
 })
 ```
 
-当body是普通js对象时，会转换为json字符串，并自动在header中添加`{'Content-Type': 'application/json'}`
+### 拦截器
 
-#### RuntimeConfig，请求的时的第三个参数，请求时可替换生成实例时的配置的配置，数据结构与`FxiosOption`一致。可覆盖实例`config`中重名的属性
+每个实例都有interceptor拦截器属性，与axios中的`transformRequest`与`transformResponse`类似。
 
-在运行时的runtimeConfig将会与创建实例时的config合并使用，有重名属性时`runtimeConfig`内的值会覆盖生成实例时的`config`对应的值。
-
-### Interceptor拦截器，与axios中的`transformRequest`与`transformResponse`类似。
-
-interceptor对象有三个属性对应三种拦截器，`request`、`response`、`catch`。每个拦截器都是普通js数组，在运行时会按数组先后顺序依次执行。也可按需在对应的数组中添加或减少成员函数。
-
-```javascript
-fxios.interceptor.request = function(url, option, runtimeConfig) {...}
-fxios.interceptor.response = function(response, request) {...}
-fxios.interceptor.catch = function(error, request) {...}
-```
-
-#### `interceptor.request`请求拦截器
-
-最后一个拦截器函数的返回值将作为fxios实际处理的值。
-每个拦截器函数签名如下:
-
-```javascript
-type RequestCallback = (url: string, option?: FxiosOption, runtimeConfig?: FxiosConfig) => [url: string, option?: FxiosOption, runtimeConfig?: FxiosConfig]
-```
-
-#### `interceptor.request`响应拦截器
-
-第一个响应拦截器的第一个`res`参数是fetch的Response类型。
-参考[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
-之后的每个拦截器函数的第一个参数，是上一个拦截器函数返回promise的resolve值。
-第二个参数的req只读，是本次请求的request信息，是fetch的Request类型对象，
-参考[Request](https://developer.mozilla.org/en-US/docs/Web/API/Request)
-返回经过处理的数据，会作为下一个拦截器函数的第一个入参。
-最后一个拦截器返回的数据就是fxios返回的promise对象的resolve值。
-
-```javascript
-type ResponseCallback = (res: any, req: Request) => any
-```
-
-#### `interceptor.catch`错误拦截器
-
-每个错误拦截器的第一个参数是请求过程中发生的错误对象或数据。
-每个错误拦截器函数若需将错误处理后，仍然运行下一个错误拦截器，需要在函数中`throw`需要传给下一个函数的数据或错误。
-第二个参数的req只读，是本次请求的request信息，是fetch的Request类型对象，
+interceptor对象有三个属性对应三种拦截器，`request`、`response`、`catch`。
 
 ```typescript
-type CatchCallback = (err: Error, req: Request) => any
+
+fxios.interceptor.request = function(option: IFxiosRequestOption): IFxiosRequestOption {...}
+
+fxios.interceptor.response = function(res: Response, req?: IFxiosRequestOption ): any {...}
+
+fxios.interceptor.catch = function(error: Error, req?: IFxiosRequestOption): any {...}
 ```
