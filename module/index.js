@@ -82,7 +82,15 @@ class Fxios {
                         if (!option) {
                             option = { url: '', method: 'get' };
                         }
-                        option.method = key;
+                        if (typeof option === 'string') {
+                            option = {
+                                method: key,
+                                url: option,
+                            };
+                        }
+                        else {
+                            option.method = key;
+                        }
                         return target.request(option);
                     };
                     Reflect.set(target, key, method);
@@ -99,6 +107,12 @@ class Fxios {
     async request(option) {
         if (this.interceptor.request) {
             option = this.interceptor.request(option);
+        }
+        if (typeof option === 'string') {
+            option = {
+                method: 'get',
+                url: option,
+            };
         }
         option.method = option.method || 'get';
         const baseURL = option.baseURL || this.baseURL;

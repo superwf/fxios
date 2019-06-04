@@ -1716,7 +1716,15 @@
                             if (!option) {
                                 option = { url: '', method: 'get' };
                             }
-                            option.method = key;
+                            if (typeof option === 'string') {
+                                option = {
+                                    method: key,
+                                    url: option,
+                                };
+                            }
+                            else {
+                                option.method = key;
+                            }
                             return target.request(option);
                         };
                         Reflect.set(target, key, method);
@@ -1737,6 +1745,12 @@
                 return __generator(this, function (_a) {
                     if (this.interceptor.request) {
                         option = this.interceptor.request(option);
+                    }
+                    if (typeof option === 'string') {
+                        option = {
+                            method: 'get',
+                            url: option,
+                        };
                     }
                     option.method = option.method || 'get';
                     baseURL = option.baseURL || this.baseURL;

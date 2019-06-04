@@ -14,18 +14,19 @@ export interface IFxiosRequestOption extends RequestInit {
     baseURL?: string;
     url: string;
 }
+export declare type FxiosRequestOption = IFxiosRequestOption | string;
 export interface IFxiosConfig extends RequestInit {
     baseURL?: string;
 }
 export declare type ResponseInterceptor = (res: any, req: Request) => any;
-export declare type RequestInterceptor = (option?: IFxiosRequestOption) => IFxiosRequestOption;
+export declare type RequestInterceptor = (option?: FxiosRequestOption) => FxiosRequestOption;
 export declare type CatchInterceptor = (err: Error, req: Request) => any | never;
 export interface IInterceptor {
     request?: RequestInterceptor;
     response?: ResponseInterceptor;
     catch?: CatchInterceptor;
 }
-export declare type RequestFunction = <T = Response>(option?: IFxiosRequestOption) => Promise<T>;
+export declare type RequestFunction = <T = Response>(option?: FxiosRequestOption) => Promise<T>;
 export declare function isPlainObject(value: any): boolean;
 export declare const jsonType: string;
 export declare const parseUrl: (url: string, option?: IFxiosRequestOption | undefined) => string;
@@ -45,7 +46,7 @@ export declare class Fxios {
     create: typeof Fxios.create;
     requestOption: RequestInit;
     constructor(config?: IFxiosConfig);
-    request(option: IFxiosRequestOption): Promise<any>;
+    request(option: FxiosRequestOption): Promise<any>;
 }
 declare const _default: Fxios;
 export default _default;
