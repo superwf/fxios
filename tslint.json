@@ -1,5 +1,10 @@
 {
-  "extends": ["tslint-react", "tslint-eslint-rules"],
+  "extends": [
+    "tslint:latest",
+    "tslint-react",
+    "tslint-eslint-rules",
+    "tslint-config-prettier"
+  ],
   "rules": {
     "align": [true, "parameters"],
     "class-name": true,

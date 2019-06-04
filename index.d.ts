@@ -1,43 +1,51 @@
-export interface Query {
-    [index: string]: string | string[];
+/** all supported http method */
+export declare type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options';
+export interface IQuery {
+    [index: string]: string | string[] | number | number[] | boolean | boolean[] | undefined;
 }
-export interface Param {
-    [index: string]: string;
+export interface IPath {
+    [index: string]: string | number | boolean | undefined;
 }
-export interface FxiosRequestOption {
-    query?: Query;
-    param?: Param;
+export interface IFxiosRequestOption extends RequestInit {
+    query?: IQuery;
     body?: any;
+    path?: IPath;
+    formData?: any;
+    baseURL?: string;
+    url: string;
 }
-export interface FxiosConfig extends RequestInit {
+export interface IFxiosConfig extends RequestInit {
     baseURL?: string;
 }
-export declare type ResponseCallback = (res: any, req: Request) => any;
-export declare type RequestCallback = (url: string, option?: FxiosRequestOption, runtimeConfig?: FxiosConfig) => [string, FxiosRequestOption | undefined, FxiosConfig | undefined];
-export declare type CatchCallback = (err: Error, req: Request) => any | never;
-export interface Interceptor {
-    request?: RequestCallback;
-    response?: ResponseCallback;
-    catch?: CatchCallback;
+export declare type ResponseInterceptor = (res: any, req: Request) => any;
+export declare type RequestInterceptor = (option?: IFxiosRequestOption) => IFxiosRequestOption;
+export declare type CatchInterceptor = (err: Error, req: Request) => any | never;
+export interface IInterceptor {
+    request?: RequestInterceptor;
+    response?: ResponseInterceptor;
+    catch?: CatchInterceptor;
 }
-export declare type RequestFunction = <T = Response>(url: string, option?: FxiosRequestOption, runtimeConfig?: FxiosConfig) => Promise<T>;
-export declare type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
+export declare type RequestFunction = <T = Response>(option?: IFxiosRequestOption) => Promise<T>;
 export declare function isPlainObject(value: any): boolean;
-export declare const defaultRequestConfig: RequestInit;
 export declare const jsonType: string;
-export declare const parseUrl: (url: string, option?: FxiosRequestOption | undefined) => string;
+export declare const parseUrl: (url: string, option?: IFxiosRequestOption | undefined) => string;
 export declare class Fxios {
+    /** factory method
+     * follow axios create method */
+    static create(config?: IFxiosConfig): Fxios;
+    interceptor: IInterceptor;
     baseURL: string;
-    interceptor: Interceptor;
-    fetchConfig: RequestInit;
     get: RequestFunction;
     post: RequestFunction;
     put: RequestFunction;
     delete: RequestFunction;
     patch: RequestFunction;
-    [key: string]: any;
-    constructor(config?: FxiosConfig);
-    extendHttpMethod(method: string): void;
-    request<T = Response>(method: string, url: string, option?: FxiosRequestOption, runtimeConfig?: FxiosConfig): Promise<any>;
-    create(config?: FxiosConfig): Fxios;
+    head: RequestFunction;
+    options: RequestFunction;
+    create: typeof Fxios.create;
+    requestOption: RequestInit;
+    constructor(config?: IFxiosConfig);
+    request(option: IFxiosRequestOption): Promise<any>;
 }
+declare const _default: Fxios;
+export default _default;

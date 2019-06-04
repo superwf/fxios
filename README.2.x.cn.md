@@ -1,4 +1,4 @@
-# Fxios v3
+# Fxios
 
 ## 介绍 [English doc](./README.md)
 
@@ -6,9 +6,29 @@
 
 ## fxios = fetch + axios
 
+## 注意! 2.0版本接口变动较大，对之前的版本api进行了一些不兼容修改
+
+## 版本2.1变更记录
+
+* 添加umd加载格式
+
 ```
 <script src="//unpkg.com/fxios@latest/dist/index.min.js"></script>
 ```
+
+## 版本2.0变更记录
+
+* new Fxios(config)，`config`参数中的`base`属性改为`baseURL`，在实际发起请求的`runtimeConfig`中对应的属性也改为了`baseURL`。
+
+* 所有拦截器成员都改为普通函数。
+
+* request拦截器参数变更，每个拦截器接收三个参数`url`，`option`，`runtimeConfig`，并且必须返回由这三个参数构成的数组供下一个请求拦截器使用。
+
+* 新方法`extendHttpMethod`可以扩展fxios的请求方法。生成除了`get`, `post`, `put`, `delete`, `patch`之外的新方法。
+
+* 取消`Fxios`继承`Events`，事件处理应在fxios外部进行。
+
+* 添加了中文文档。
 
 ## 安装
 
@@ -19,13 +39,9 @@ npm install fxios
 ## 例子
 
 ```javascript
-import { Fxios } from 'fxios'
-
-type ResType = {success: boolean}
-
 const fxios = new Fxios()
 async function createUser() {
-  const result = await fxios.post<ResType>('/api/user', { body: { name: 'abc' } })
+  const result = await fxios.post('/api/user', { body: { name: 'abc' } })
   return result
 }
 ```
@@ -39,6 +55,17 @@ async function createUser() {
 ```js
 import { Fxios } from 'fxios'
 const fxios = new Fxios(config)
+```
+
+在`new Fxios()`时如果不传入配置，则使用如下默认配置
+
+```js
+{
+  credentials: 'include',
+  redirect: 'manual',
+  mode: 'cors',
+  cache: 'reload',
+}
 ```
 
 若传入`config`则将与default进行合并，传入的`config`项将覆盖`defaultConfig`。

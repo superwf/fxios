@@ -54,8 +54,9 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var URL = require("url");
+var deepAssign = require("deep-assign");
 var pathToRegexp = require("path-to-regexp");
+var URL = require("url");
 // copy from lodash
 function isPlainObject(value) {
     if (Object.getPrototypeOf(value) === null || Array.isArray(value)) {
@@ -73,20 +74,26 @@ function isPlainObject(value) {
     return Object.getPrototypeOf(value) === proto;
 }
 exports.isPlainObject = isPlainObject;
-exports.defaultRequestConfig = {
-    credentials: 'include',
-    redirect: 'manual',
-    mode: 'cors',
-    cache: 'reload',
+var removeNonRequestInitProperty = function (option) {
+    var query = option.query, body = option.body, path = option.path, baseURL = option.baseURL, url = option.url, formData = option.formData, requestInit = __rest(option, ["query", "body", "path", "baseURL", "url", "formData"]);
+    return requestInit;
 };
+// export const defaultRequestConfig: Omit<IFxiosRequestOption, 'url'> = {
+//   credentials: 'include',
+//   redirect: 'manual',
+//   mode: 'cors',
+//   cache: 'reload',
+//   method: 'get',
+//   baseURL: '',
+// }
 exports.jsonType = 'application/json';
 exports.parseUrl = function (url, option) {
-    if (option && option.param) {
-        for (var _i = 0, _a = Object.keys(option.param); _i < _a.length; _i++) {
+    if (option && option.path) {
+        for (var _i = 0, _a = Object.keys(option.path); _i < _a.length; _i++) {
             var k = _a[_i];
-            option.param[k] = encodeURIComponent(option.param[k]);
+            option.path[k] = encodeURIComponent(String(option.path[k]));
         }
-        url = pathToRegexp.compile(url)(option.param);
+        url = pathToRegexp.compile(url)(option.path);
     }
     if (option && option.query) {
         var urlObject = URL.parse(url, true); // true: let the urlObject.query is object
@@ -98,81 +105,108 @@ exports.parseUrl = function (url, option) {
 };
 var Fxios = /** @class */ (function () {
     function Fxios(config) {
-        var _this = this;
-        if (config === void 0) { config = exports.defaultRequestConfig; }
         this.interceptor = {};
-        var baseURL = config.baseURL, requestConfig = __rest(config, ["baseURL"]);
-        this.fetchConfig = __assign({}, requestConfig);
-        this.baseURL = baseURL || '';
-        var methods = ['get', 'post', 'put', 'delete', 'patch'];
-        methods.forEach(function (method) {
-            _this[method] = function (url, option, runtimeConfig) { return _this.request(method, url, option, runtimeConfig); };
+        this.baseURL = '';
+        // instance factory method
+        this.create = Fxios.create;
+        if (config) {
+            var baseURL = config.baseURL, requestInit = __rest(config, ["baseURL"]);
+            this.baseURL = config.baseURL || '';
+            this.requestOption = requestInit;
+        }
+        var methods = [
+            'get',
+            'post',
+            'put',
+            'delete',
+            'patch',
+            'head',
+            'options',
+        ];
+        return new Proxy(this, {
+            get: function (target, key, receiver) {
+                // console.log(target, key, receiver)
+                if (key in target) {
+                    return Reflect.get(target, key, receiver);
+                }
+                if (methods.includes(key)) {
+                    var method = function (option) {
+                        if (!option) {
+                            option = { url: '', method: 'get' };
+                        }
+                        option.method = key;
+                        return target.request(option);
+                    };
+                    Reflect.set(target, key, method);
+                    return method;
+                }
+            },
         });
     }
-    Fxios.prototype.extendHttpMethod = function (method) {
-        var _this = this;
-        this[method] = function (url, option, runtimeConfig) { return _this.request(method, url, option, runtimeConfig); };
+    /** factory method
+     * follow axios create method */
+    Fxios.create = function (config) {
+        return new Fxios(config);
     };
-    Fxios.prototype.request = function (method, url, option, runtimeConfig) {
+    Fxios.prototype.request = function (option) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, parsedUrl, baseURL, requestOption, headers, body, req;
+            var baseURL, url, parsedUrl, requestOption, headers, body, formData_1, form_1, req;
             var _this = this;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        method = method.toUpperCase();
-                        if (runtimeConfig === undefined) {
-                            runtimeConfig = {
-                                method: method,
-                            };
-                        }
-                        else {
-                            runtimeConfig.method = method;
-                        }
-                        if (!this.interceptor.request) return [3 /*break*/, 2];
-                        ;
-                        return [4 /*yield*/, this.interceptor.request.call(this, url, option, runtimeConfig)];
-                    case 1:
-                        _a = _b.sent(), url = _a[0], option = _a[1], runtimeConfig = _a[2];
-                        _b.label = 2;
-                    case 2:
-                        parsedUrl = exports.parseUrl(url, option);
-                        baseURL = runtimeConfig && 'baseURL' in runtimeConfig
-                            ? runtimeConfig.baseURL
-                            : this.baseURL;
-                        requestOption = __assign({}, this.fetchConfig, runtimeConfig);
-                        headers = requestOption.headers || {};
-                        if (option && option.body) {
-                            body = option.body;
-                            if (isPlainObject(body)) {
-                                requestOption.headers = __assign({ 'Content-Type': exports.jsonType }, headers);
-                                body = JSON.stringify(body);
-                            }
-                            requestOption.body = body;
-                        }
-                        req = new Request("" + baseURL + parsedUrl, requestOption);
-                        return [2 /*return*/, fetch(req)
-                                .then(function (res) {
-                                if (_this.interceptor.response !== undefined) {
-                                    return _this.interceptor.response.call(_this, res, req);
-                                }
-                                return res;
-                            })
-                                .catch(function (err) {
-                                if (_this.interceptor.catch !== undefined) {
-                                    return _this.interceptor.catch.call(_this, err, req);
-                                }
-                                throw err;
-                            })];
+            return __generator(this, function (_a) {
+                if (this.interceptor.request) {
+                    option = this.interceptor.request(option);
                 }
+                option.method = option.method || 'get';
+                baseURL = option.baseURL || this.baseURL;
+                url = baseURL ? "" + baseURL + option.url : option.url;
+                parsedUrl = exports.parseUrl(url, option);
+                requestOption = removeNonRequestInitProperty(option);
+                headers = requestOption.headers || {};
+                if (option.body) {
+                    body = option.body;
+                    // add application/json header when body is plain object
+                    // and auto json stringify the body
+                    if (isPlainObject(body)) {
+                        requestOption.headers = __assign({ 'Content-Type': exports.jsonType }, headers);
+                        body = JSON.stringify(body);
+                    }
+                    requestOption.body = body;
+                }
+                // when upload file
+                if (option.formData) {
+                    formData_1 = option.formData;
+                    if (formData_1 instanceof FormData) {
+                        requestOption.body = formData_1;
+                    }
+                    if (isPlainObject(formData_1)) {
+                        form_1 = new FormData();
+                        Object.keys(formData_1).forEach(function (k) {
+                            if (formData_1.hasOwnProperty(k)) {
+                                form_1.append(k, formData_1[k]);
+                            }
+                        });
+                        requestOption.body = form_1;
+                    }
+                }
+                req = deepAssign({}, this.requestOption, requestOption);
+                return [2 /*return*/, fetch(parsedUrl, req)
+                        .then(function (res) {
+                        if (_this.interceptor.response !== undefined) {
+                            return _this.interceptor.response.call(_this, res, req);
+                        }
+                        return res;
+                    })
+                        .catch(function (err) {
+                        if (_this.interceptor.catch !== undefined) {
+                            return _this.interceptor.catch.call(_this, err, req);
+                        }
+                        throw err;
+                    })];
             });
         });
-    };
-    Fxios.prototype.create = function (config) {
-        if (config === void 0) { config = exports.defaultRequestConfig; }
-        return new Fxios(config);
     };
     return Fxios;
 }());
 exports.Fxios = Fxios;
+exports.default = new Fxios();
 //# sourceMappingURL=index.js.map

@@ -1,57 +1,68 @@
-import * as URL from 'url'
+import deepAssign = require('deep-assign')
 import * as pathToRegexp from 'path-to-regexp'
+import * as URL from 'url'
+
+/** all supported http method */
+export type HttpMethod =
+  | 'get'
+  | 'post'
+  | 'put'
+  | 'delete'
+  | 'patch'
+  | 'head'
+  | 'options'
 
 // url query 对象
-export interface Query {
-  [index: string]: string | string[]
+export interface IQuery {
+  [index: string]:
+    | string
+    | string[]
+    | number
+    | number[]
+    | boolean
+    | boolean[]
+    | undefined
 }
 
 // 路由参数对象
-export interface Param {
-  [index: string]: string
+export interface IPath {
+  [index: string]: string | number | boolean | undefined
 }
 
 // 发起请求时的通用参数
-export interface FxiosRequestOption {
-  query?: Query
-  param?: Param
+export interface IFxiosRequestOption extends RequestInit {
+  query?: IQuery
   body?: any
+  path?: IPath
+  formData?: any
+  baseURL?: string
+  url: string
 }
 
 // 实例化的配置参数
-export interface FxiosConfig extends RequestInit {
+export interface IFxiosConfig extends RequestInit {
   baseURL?: string
 }
 
 // 实例化的配置参数
-export type ResponseCallback = (res: any, req: Request) => any
+export type ResponseInterceptor = (res: any, req: Request) => any
 
-// export interface ResponseCallback {
-//   <T>(res: any, req: Request): Promise<T> | T
-//   call: <T>(v: any, res: any, req: Request) => Promise<T> | T
-// }
+export type RequestInterceptor = (
+  option?: IFxiosRequestOption,
+) => IFxiosRequestOption
 
-export type RequestCallback = (
-  url: string,
-  option?: FxiosRequestOption,
-  runtimeConfig?: FxiosConfig,
-) => [string, FxiosRequestOption | undefined, FxiosConfig | undefined]
-export type CatchCallback = (err: Error, req: Request) => any | never
+export type CatchInterceptor = (err: Error, req: Request) => any | never
 
 // 拦截器
-export interface Interceptor {
-  request?: RequestCallback
-  response?: ResponseCallback
-  catch?: CatchCallback
+export interface IInterceptor {
+  request?: RequestInterceptor
+  response?: ResponseInterceptor
+  catch?: CatchInterceptor
 }
 
 export type RequestFunction = <T = Response>(
-  url: string,
-  option?: FxiosRequestOption,
-  runtimeConfig?: FxiosConfig,
+  option?: IFxiosRequestOption,
 ) => Promise<T>
-
-export type HttpMethod = 'get' | 'post' | 'put' | 'delete' | 'patch'
 
 // copy from lodash
 export function isPlainObject(value: any): boolean {
@@ -72,21 +83,30 @@ export function isPlainObject(value: any): boolean {
   return Object.getPrototypeOf(value) === proto
 }
 
-export const defaultRequestConfig: RequestInit = {
-  credentials: 'include',
-  redirect: 'manual',
-  mode: 'cors',
-  cache: 'reload',
+const removeNonRequestInitProperty = (
+  option: IFxiosRequestOption,
+): RequestInit => {
+  const { query, body, path, baseURL, url, formData, ...requestInit } = option
+  return requestInit
 }
+
+// export const defaultRequestConfig: Omit<IFxiosRequestOption, 'url'> = {
+//   credentials: 'include',
+//   redirect: 'manual',
+//   mode: 'cors',
+//   cache: 'reload',
+//   method: 'get',
+//   baseURL: '',
+// }
 
 export const jsonType: string = 'application/json'
 
-export const parseUrl = (url: string, option?: FxiosRequestOption): string => {
-  if (option && option.param) {
-    for (let k of Object.keys(option.param)) {
-      option.param[k] = encodeURIComponent(option.param[k])
+export const parseUrl = (url: string, option?: IFxiosRequestOption): string => {
+  if (option && option.path) {
+    for (const k of Object.keys(option.path)) {
+      option.path[k] = encodeURIComponent(String(option.path[k]))
     }
-    url = pathToRegexp.compile(url)(option.param)
+    url = pathToRegexp.compile(url)(option.path)
   }
   if (option && option.query) {
     const urlObject = URL.parse(url, true) // true: let the urlObject.query is object
@@ -104,76 +124,81 @@ export const parseUrl = (url: string, option?: FxiosRequestOption): string => {
 }
 
 export class Fxios {
-  baseURL: string
-  interceptor: Interceptor = {}
+  /** factory method
+   * follow axios create method */
+  public static create(config?: IFxiosConfig) {
+    return new Fxios(config)
+  }
 
-  fetchConfig: RequestInit
-  get: RequestFunction
-  post: RequestFunction
-  put: RequestFunction
-  delete: RequestFunction
-  patch: RequestFunction
+  public interceptor: IInterceptor = {}
+  public baseURL: string = ''
 
-  // for extendHttpMethod
-  [key: string]: any
+  // support what axios support
+  public get: RequestFunction
+  public post: RequestFunction
+  public put: RequestFunction
+  public delete: RequestFunction
+  public patch: RequestFunction
+  public head: RequestFunction
+  public options: RequestFunction
 
-  constructor(config: FxiosConfig = defaultRequestConfig) {
-    const { baseURL, ...requestConfig } = config
-    this.fetchConfig = { ...requestConfig }
-    this.baseURL = baseURL || ''
+  // instance factory method
+  public create = Fxios.create
 
-    const methods: Array<HttpMethod> = ['get', 'post', 'put', 'delete', 'patch']
-    methods.forEach((method: HttpMethod) => {
-      this[method] = <T = Response>(
-        url: string,
-        option?: FxiosRequestOption,
-        runtimeConfig?: RequestInit,
-      ): Promise<T> => this.request<T>(method, url, option, runtimeConfig)
+  public requestOption: RequestInit
+
+  constructor(config?: IFxiosConfig) {
+    if (config) {
+      const { baseURL, ...requestInit } = config
+      this.baseURL = config.baseURL || ''
+      this.requestOption = requestInit
+    }
+
+    const methods: HttpMethod[] = [
+      'get',
+      'post',
+      'put',
+      'delete',
+      'patch',
+      'head',
+      'options',
+    ]
+
+    return new Proxy(this, {
+      get(target: Fxios, key: HttpMethod, receiver) {
+        // console.log(target, key, receiver)
+        if (key in target) {
+          return Reflect.get(target, key, receiver)
+        }
+        if (methods.includes(key)) {
+          const method = (option: IFxiosRequestOption) => {
+            if (!option) {
+              option = { url: '', method: 'get' }
+            }
+            option.method = key
+            return target.request(option)
+          }
+          Reflect.set(target, key, method)
+          return method
+        }
+      },
     })
   }
 
-  extendHttpMethod(method: string): void {
-    this[method] = <T>(
-      url: string,
-      option?: FxiosRequestOption,
-      runtimeConfig?: RequestInit,
-    ): Promise<T> => this.request<T>(method, url, option, runtimeConfig)
-  }
-
-  async request<T = Response>(
-    method: string,
-    url: string,
-    option?: FxiosRequestOption,
-    runtimeConfig?: FxiosConfig,
-  ) {
-    method = method.toUpperCase()
-    if (runtimeConfig === undefined) {
-      runtimeConfig = {
-        method,
-      }
-    } else {
-      runtimeConfig.method = method
-    }
+  public async request(option: IFxiosRequestOption) {
     if (this.interceptor.request) {
-      ;[url, option, runtimeConfig] = await this.interceptor.request.call(
-        this,
-        url,
-        option,
-        runtimeConfig,
-      )
+      option = this.interceptor.request(option)
     }
+    option.method = option.method || 'get'
+    const baseURL = option.baseURL || this.baseURL
+    const url = baseURL ? `${baseURL}${option.url}` : option.url
     const parsedUrl = parseUrl(url, option)
-    const baseURL =
-      runtimeConfig && 'baseURL' in runtimeConfig
-        ? runtimeConfig.baseURL
-        : this.baseURL
-    const requestOption: FxiosConfig = {
-      ...this.fetchConfig,
-      ...runtimeConfig,
-    }
-    let headers: HeadersInit = requestOption.headers || {}
-    if (option && option.body) {
+    const requestOption: RequestInit = removeNonRequestInitProperty(option)
+    const headers: HeadersInit = requestOption.headers || {}
+    if (option.body) {
       let { body } = option
+      // add application/json header when body is plain object
+      // and auto json stringify the body
       if (isPlainObject(body)) {
         requestOption.headers = {
           'Content-Type': jsonType,
@@ -183,13 +208,30 @@ export class Fxios {
       }
       requestOption.body = body
     }
-    const req: Request = new Request(`${baseURL}${parsedUrl}`, requestOption)
-    return fetch(req)
-      .then<T>(res => {
+    // when upload file
+    if (option.formData) {
+      const { formData } = option
+      if (formData instanceof FormData) {
+        requestOption.body = formData
+      }
+      if (isPlainObject(formData)) {
+        const form = new FormData()
+        Object.keys(formData).forEach(k => {
+          if (formData.hasOwnProperty(k)) {
+            form.append(k, formData[k])
+          }
+        })
+        requestOption.body = form
+      }
+    }
+
+    const req = deepAssign({}, this.requestOption, requestOption)
+    return fetch(parsedUrl, req)
+      .then(res => {
         if (this.interceptor.response !== undefined) {
           return this.interceptor.response.call(this, res, req)
         }
-        return (res as unknown) as T
+        return res
       })
       .catch((err: any) => {
         if (this.interceptor.catch !== undefined) {
@@ -198,8 +240,6 @@ export class Fxios {
         throw err
       })
   }
-
-  create(config: FxiosConfig = defaultRequestConfig) {
-    return new Fxios(config)
-  }
 }
+
+export default new Fxios()

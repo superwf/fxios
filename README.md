@@ -16,6 +16,25 @@
 <script src="//unpkg.com/fxios@latest/dist/index.min.js"></script>
 ```
 
+## version 3 changelog
+
+* rename `FxiosRequestOption` property `param` to `path`.
+  follow the swagger request `path` param naming.
+
+* make the FxiosRequestOption accept `number` and `number[]` type value.
+
+* follow tslint, rename some interface name.
+
+* remove `runtimeConfig`, merge it into `IFxiosRequestOption`.
+
+* add a default instance for `Fxios` class static method.
+  Fxios could use without instance, like `axios`.
+
+  ```javascript
+  import { Fxios } from 'fxios'
+  Fxios.get('...')
+  ```
+
 ## version 2 changelog
 
 * new Fxios(config) changed, change `base` to `baseURL`, to keep same data structure with the `runtimeConfig`.

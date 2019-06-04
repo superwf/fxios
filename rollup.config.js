@@ -46,6 +46,7 @@ export default [
     ],
   },
   umdConfig,
+  // umd format for production
   {
     ...umdConfig,
     output: {

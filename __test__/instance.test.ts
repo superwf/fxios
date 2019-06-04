@@ -1,31 +1,43 @@
-import {
+import fxios, {
   HttpMethod,
-  FxiosConfig,
   Fxios,
   jsonType,
-  defaultRequestConfig,
+  IFxiosRequestOption,
   isPlainObject,
 } from '../index'
-import { format, parse } from 'url'
-import fetchMock = require('fetch-mock')
+import { format } from 'url'
+// import fetchMock = require('fetch-mock')
+import { GlobalWithFetchMock } from 'jest-fetch-mock'
+
+const customGlobal: GlobalWithFetchMock = global as GlobalWithFetchMock
+customGlobal.fetch = require('jest-fetch-mock')
+customGlobal.fetchMock = customGlobal.fetch
 
 const mockData = {
-  get: { code: 'success', message: 'ok', data: [] },
-  post: { code: 'success', message: 'ok', data: [] },
+  get: { code: 'success', message: 'ok', data: { id: 1 } },
 }
 
 const mockUrls = {
   get: '/get',
   post: '/post',
+  withPathParameter: '/menber/:id',
 }
 
-const httpMethods: HttpMethod[] = ['get', 'post', 'put', 'delete', 'patch']
+const httpMethods: HttpMethod[] = [
+  'get',
+  'post',
+  'put',
+  'delete',
+  'patch',
+  'head',
+  'options',
+]
 
-type fetchMockMethod = typeof fetchMock.post
+// type fetchMockMethod = typeof fetchMock.post
 
 describe('fetch', () => {
   beforeEach(() => {
-    fetchMock.restore()
+    fetchMock.resetMocks()
   })
 
   it('测试isPlainObject', () => {
@@ -42,318 +54,250 @@ describe('fetch', () => {
     expect(isPlainObject(Object.create({ a: 1 }))).toBe(false)
   })
 
-  it('get方法，无intern.response，直接获取Response类型数据', async () => {
-    const fxios = new Fxios()
-    fetchMock.get(mockUrls.get, mockData.get)
-    const res = (await fxios.get(mockUrls.get)) as Response
-    expect(res).toBeInstanceOf(Response)
-    return res.json().then((d: any) => {
-      expect(d).toEqual(mockData.get)
-    })
-  })
-
-  httpMethods.forEach((method: HttpMethod) => {
-    it(`${method}方法，测试路由函数`, () => {
-      const getWithRouterParam = '/get/superwf/edit/33'
-      ;(<fetchMockMethod>fetchMock[method])(getWithRouterParam, {
-        body: mockData.get,
-      })
-      // fetchMock.post(getWithRouterParam, {
-      //   body: mockData.get,
-      // })
-      const fxios = new Fxios()
-      return fxios[method]('/get/:name/edit/:id', {
-        param: { name: 'superwf', id: '33' },
-      }).then((res: any) => {
-        expect(res).toBeInstanceOf(Response)
-        return res.text().then((d: any) => {
-          expect(d).toEqual(JSON.stringify(mockData.get))
+  describe('Proxy http request methods', () => {
+    httpMethods.forEach(method => {
+      it(`test http request method: ${method} by Proxy`, async () => {
+        const f = new Fxios()
+        fetchMock.mockResponseOnce(JSON.stringify(mockData.get))
+        const a = await f[method]({
+          url: mockUrls.get,
         })
+        // console.log(fetchMock.mock.calls)
+        expect(await a.json()).toEqual(mockData.get)
       })
-    })
-
-    it(`fxios.${method}方法已与fxios绑定，可以不被fxios调用单独执行，效果不变`, () => {
-      const getWithRouterParam = '/get/superwf/edit/33'
-      ;(<fetchMockMethod>fetchMock[method])(getWithRouterParam, mockData.get)
-      const fxios = new Fxios()
-      const request = fxios[method]
-      return request('/get/:name/edit/:id', {
-        param: { name: 'superwf', id: '33' },
-      }).then((res: Response) => {
-        expect(res).toBeInstanceOf(Response)
-        return res.text().then((d: any) => {
-          expect(d).toEqual(JSON.stringify(mockData.get))
-        })
-      })
-    })
-
-    it(`${method}方法，测试路由函数，param可为空值`, () => {
-      ;(<fetchMockMethod>fetchMock[method])(mockUrls.get, mockData.get)
-      const fxios = new Fxios()
-      return fxios[method](mockUrls.get).then((res: Response) => {
-        expect(res).toBeInstanceOf(Response)
-        return res.text().then((d: any) => {
-          expect(d).toEqual(JSON.stringify(mockData.get))
-        })
-      })
-    })
-
-    it(`${method}方法，测试url baseURL`, () => {
-      const withBase = '/api/get'
-      ;(<fetchMockMethod>fetchMock[method])(withBase, mockData.get)
-      const fxios = new Fxios({ baseURL: '/api' })
-      return fxios[method]('/get').then(res => {
-        expect(res).toBeInstanceOf(Response)
-      })
-    })
-
-    it(`${method}方法，测试res.text()`, () => {
-      const fxios = new Fxios()
-      ;(<fetchMockMethod>fetchMock[method])(mockUrls.get, mockData.get)
-      return fxios[method](mockUrls.get).then((res: Response) => {
-        expect(res).toBeInstanceOf(Response)
-        return res.text().then((d: any) => {
-          expect(d).toEqual(JSON.stringify(mockData.get))
-        })
-      })
-    })
-
-    if (method !== 'get') {
-      it(`${method}方法，测试定制headers，与提交对象是自动添加的json header`, () => {
-        const headers = {
-          'X-Request': 'power',
-        }
-        const fxios = new Fxios({ headers })
-        ;(<fetchMockMethod>fetchMock[method])(mockUrls.get, mockData.get)
-        const data = { name: 'abc' }
-        return fxios[method](mockUrls.get, { body: data }).then(res => {
-          const lastRequest = fetchMock.lastCall()!.request!
-          expect(lastRequest.headers.get('x-request')).toBe('power')
-          expect(lastRequest.headers.get('content-type')).toEqual(jsonType)
-          expect(res).toBeInstanceOf(Response)
-        })
-      })
-
-      it(`${method}方法，测试默认requestConfig.redirect`, () => {
-        const fxios = new Fxios()
-        ;(<fetchMockMethod>fetchMock[method])(mockUrls.get, mockData.get)
-        return fxios[method](mockUrls.get).then(res => {
-          const lastRequest = fetchMock.lastCall()!.request!
-          expect(lastRequest.redirect).toBe(defaultRequestConfig.redirect)
-          expect(res).toBeInstanceOf(Response)
-        })
-      })
-
-      it(`${method}方法，测试runtimeConfig`, () => {
-        const fxios = new Fxios()
-        ;(<fetchMockMethod>fetchMock[method])(mockUrls.get, mockData.get)
-        return fxios[method](mockUrls.get, undefined, {
-          redirect: 'error',
-        }).then((res: any) => {
-          const lastRequest = fetchMock.lastCall()!.request!
-          expect(lastRequest.redirect).toBe('error')
-          expect(res).toBeInstanceOf(Response)
-        })
-      })
-    }
-  })
-
-  it('get方法，测试interceptor.request', () => {
-    const query = { abc: 'xyz' }
-    const fxios = new Fxios()
-    fxios.interceptor.request = (url, option, runtimeConfig) => {
-      const u = parse(url, true)
-      u.query.name = 'def'
-      delete url.search
-      const u1 = format(url)
-      return [u1, option, runtimeConfig]
-    }
-    const url = format({
-      pathname: mockUrls.get,
-      query: { abc: 'xyz', name: 'def' },
-    })
-    fetchMock.get(url, mockData.get)
-    return fxios.get(url, { query }).then(res => {
-      expect(fetchMock.lastCall!()![0]).toBe('/get?abc=xyz&name=def')
-      expect(res).toBeInstanceOf(Response)
     })
   })
 
-  it('get方法，通过interceptor处理数据', async () => {
-    const fxios = new Fxios()
-    fetchMock.get(mockUrls.get, mockData.get)
-    class FError extends Error {
-      response: Response
-      request: Request
-    }
-
-    interface IRes {
-      name: string
-      age: number
-    }
-    const r: IRes = {
-      name: 'asdfasdf',
-      age: 12,
-    }
-    fxios.interceptor.response = (res, req) => {
-      if (!res.ok) {
-        const error = new FError(res.statusText)
-        error.response = res
-        error.request = req
-        throw error
-      }
-      return res.json().then((data: any) => {
-        return data
-      })
-    }
-    const res = await fxios.request<typeof mockData.get>('get', mockUrls.get)
-    expect(res).toEqual(mockData.get)
-    // })
+  it('default export instance', () => {
+    expect(fxios).toBeInstanceOf(Fxios)
   })
 
-  it('post方法，测试post object', async () => {
-    const data = { name: '123' }
-    const fxios = new Fxios()
-    fetchMock.post(mockUrls.post, mockData.post)
-    await fxios.post(mockUrls.post, { body: data })
-    let lastPost = fetchMock.lastCall()!.request!
-    expect(lastPost.body).toBe(JSON.stringify(data))
-    await fxios.post(mockUrls.post, { body: Object.create(null) })
-    lastPost = fetchMock.lastCall()!.request!
-    expect(lastPost.body).toBe(JSON.stringify({}))
-  })
-
-  it('post方法，测试post string', () => {
-    const data = 'abcdefaesdf'
-    const fxios = new Fxios()
-    fetchMock.post(mockUrls.post, mockData.post)
-    return fxios.post(mockUrls.post, { body: data }).then(res => {
-      const lastPost = fetchMock.lastCall()!.request!
-      expect(lastPost.body).toBe(data)
+  it('test path parameter', async () => {
+    const f = new Fxios()
+    fetchMock.mockResponseOnce(JSON.stringify(mockData.get))
+    await f.get({
+      url: mockUrls.withPathParameter,
+      path: {
+        id: '123',
+      },
     })
-  })
-
-  it('post方法，测试post Buffer', () => {
-    const data = Buffer.alloc(8)
-    const fxios = new Fxios()
-    fetchMock.post(mockUrls.post, mockData.post)
-    return fxios.post(mockUrls.post, { body: data }).then(res => {
-      const lastPost = fetchMock.lastCall()!.request!
-      expect(lastPost.body).toBe(data)
-    })
-  })
-
-  it('interceptor.catch', done => {
-    const fxios = new Fxios()
-    fxios.interceptor.catch = (err, req) => {
-      expect(err).toBeInstanceOf(Error)
-      expect(req).toBeInstanceOf(Request)
-      done()
-    }
-    fxios.interceptor.response = (res, req) => {
-      if (res.status !== 200) {
-        throw new Error(res.status)
-      }
-      return res
-    }
-    const init = { status: 404 }
-    const res = new Response(undefined, init)
-    fetchMock.get(mockUrls.get, res)
-    fxios.get(mockUrls.get)
-  })
-
-  it('当没有interceptor.catch时，通过普通catch可以捕获错误', done => {
-    const fxios = new Fxios()
-    fxios.interceptor.response = (res, req) => {
-      if (res.status !== 200) {
-        throw new Error(res.status)
-      }
-      return res
-    }
-    const init = { status: 404 }
-    const res = new Response(undefined, init)
-    fetchMock.get(mockUrls.get, res)
-    fxios.get(mockUrls.get).catch(err => {
-      expect(err).toBeInstanceOf(Error)
-      done()
-    })
-  })
-
-  it(`测试runtimeConfig更改baseURL`, () => {
-    const fxios = new Fxios({
-      baseURL: '/api/',
-    })
-    fetchMock.get('/xxx/abc', mockData.get)
-    return fxios
-      .get('abc', undefined, {
-        baseURL: '/xxx/',
-      })
-      .then((res: any) => {
-        expect(res).toBeInstanceOf(Response)
-      })
-  })
-
-  it('测试query中有数组的情况', () => {
-    const fxios = new Fxios({
-      baseURL: '/api/',
-    })
-    fetchMock.get('/api/abc?type=a&type=b', mockData.get)
-    return fxios
-      .get('abc', {
-        query: {
-          type: ['a', 'b'],
-        },
-      })
-      .then(res => {
-        expect(res).toBeInstanceOf(Response)
-      })
-  })
-
-  it('测试url参数param中有乱码字符', () => {
-    const fxios = new Fxios({
-      baseURL: '/api/',
-    })
-    fetchMock.get(
-      '/api/%25EF%25BF%25BD%25EF%25BF%25BDt%25E7%259C%259F%25E5%25AE%259E18ww',
-      mockData.get,
+    expect(fetchMock).toHaveBeenCalledWith(
+      mockUrls.withPathParameter.replace(':id', '123'),
+      { method: 'get' },
     )
-    return fxios
-      .get(':name', {
-        param: {
-          name: '��t真实18ww',
-        },
-      })
-      .then(res => {
-        expect(res).toBeInstanceOf(Response)
-      })
   })
 
-  it('interceptor.request的runtimeConfig中包含请求的method', () => {
-    const fxios = new Fxios()
-    fxios.interceptor.request = (url, option, runtimeConfig) => {
-      expect((runtimeConfig as FxiosConfig).method).toBe('GET')
-      return [url, option, runtimeConfig]
+  it('test query parameter', async () => {
+    const f = new Fxios()
+    fetchMock.mockResponseOnce(JSON.stringify(mockData.get))
+
+    const query = {
+      id: '123',
+      name: 'def',
     }
-    const url = mockUrls.get
-    fetchMock.get(url, mockData.get)
-    return fxios.get(url).then(res => {
-      expect(fetchMock.lastCall!()![0]).toBe('/get')
-      expect(res).toBeInstanceOf(Response)
+    await f.get({
+      url: mockUrls.get,
+      query,
+    })
+    expect(fetchMock).toHaveBeenCalledWith(mockUrls.get + format({ query }), {
+      method: 'get',
     })
   })
 
-  describe('测试自定义http方法', () => {
-    it('扩展trace方法', async () => {
-      const fxios = new Fxios({})
-      expect('trace' in fxios).toBe(false)
-      fxios.extendHttpMethod('trace')
-      expect('trace' in fxios).toBe(true)
+  it('test body parameter', async () => {
+    const f = new Fxios()
+    fetchMock.mockResponseOnce(JSON.stringify(mockData.get))
 
-      const url = '/xxx/abc'
-      fetchMock.mock(url, 200)
-      await fxios.trace(url)
-      const lastPost = fetchMock.lastCall()!.request!
-      expect(lastPost.method).toBe('TRACE')
+    const body = {
+      id: '123',
+      name: 'def',
+    }
+    await f.post({
+      url: mockUrls.post,
+      body,
+    })
+    expect(fetchMock).toHaveBeenCalledWith(mockUrls.post, {
+      method: 'post',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': jsonType,
+      },
+    })
+  })
+
+  it('test formData parameter', async () => {
+    const f = new Fxios()
+    fetchMock.mockResponseOnce(JSON.stringify(mockData.get))
+
+    const formData = {
+      id: '123',
+      name: 'def',
+    }
+    await f.post({
+      url: mockUrls.post,
+      formData,
+    })
+
+    const form = new FormData()
+    form.append('id', formData.id)
+    form.append('name', formData.name)
+    expect(fetchMock.mock.calls[0]).toEqual([
+      '/post',
+      {
+        method: 'post',
+        body: form,
+      },
+    ])
+  })
+
+  it('test formData use FormData instance parameter', async () => {
+    const f = new Fxios()
+    fetchMock.mockResponseOnce(JSON.stringify(mockData.get))
+
+    const form = new FormData()
+    form.append('id', '123')
+    form.append('name', 'def')
+
+    await f.post({
+      url: mockUrls.post,
+      formData: form,
+    })
+
+    expect(fetchMock.mock.calls[0]).toEqual([
+      '/post',
+      {
+        method: 'post',
+        body: form,
+      },
+    ])
+  })
+
+  it('test factory method create', () => {
+    expect(Fxios.create()).toBeInstanceOf(Fxios)
+    expect(fxios.create()).toBeInstanceOf(Fxios)
+  })
+
+  it('default instance has no requestOption', () => {
+    expect(fxios.requestOption).toBe(undefined)
+  })
+
+  it('instance option', async () => {
+    const f = new Fxios({
+      baseURL: '/abc',
+      credentials: 'same-origin',
+    })
+    expect(f.baseURL).toEqual('/abc')
+    expect(f.requestOption).toEqual({
+      credentials: 'same-origin',
+    })
+
+    fetchMock.mockResponse(JSON.stringify(mockData.get))
+    await f.get({ url: '/def' })
+    expect(fetchMock).toHaveBeenLastCalledWith('/abc/def', {
+      method: 'get',
+      credentials: 'same-origin',
+    })
+
+    f.baseURL = '/xxx'
+    await f.get({ url: '/def' })
+    expect(fetchMock).toHaveBeenLastCalledWith('/xxx/def', {
+      method: 'get',
+      credentials: 'same-origin',
+    })
+  })
+
+  it('no config baseURL, instance baseURL is blank string', () => {
+    const f = new Fxios()
+    expect(f.baseURL).toBe('')
+
+    const f1 = Fxios.create()
+    expect(f1.baseURL).toBe('')
+
+    const f2 = f.create({
+      headers: {
+        'CSRF-TOKEN': 'xxxxx',
+      },
+    })
+    expect(f2.baseURL).toBe('')
+    expect(f2.requestOption.headers).toEqual({
+      'CSRF-TOKEN': 'xxxxx',
+    })
+  })
+
+  describe('interceptor', () => {
+    it('request interceptor modify query and baseURL', async () => {
+      const f = new Fxios({
+        baseURL: '/abc',
+      })
+      const query = { ddd: '122' }
+      f.interceptor.request = (option: IFxiosRequestOption) => {
+        option.baseURL = '/def'
+        option.query = query
+        return option
+      }
+      fetchMock.mockResponse(JSON.stringify(mockData.get))
+
+      await f.get({ url: '/xxx' })
+      expect(fetchMock).toHaveBeenLastCalledWith(
+        '/def/xxx' + format({ query }),
+        {
+          method: 'get',
+        },
+      )
+    })
+
+    it('response interceptor', async () => {
+      const f = new Fxios({
+        baseURL: '/abc',
+      })
+      f.interceptor.response = (res: Response) => {
+        return res.json()
+      }
+      fetchMock.mockResponseOnce(JSON.stringify(mockData.get))
+
+      const a = await f.get()
+      expect(a).toEqual(mockData.get)
+    })
+
+    it('catch interceptor', async () => {
+      const f = new Fxios({
+        baseURL: '/abc',
+      })
+      f.interceptor.catch = (err: Error) => {
+        return err
+      }
+
+      const error = new Error('test error')
+      fetchMock.mockRejectedValue(error)
+
+      const e = await f.get()
+      expect(e).toEqual(error)
+    })
+
+    it('when no catch interceptor, just throw', async () => {
+      const f = new Fxios({
+        baseURL: '/abc',
+      })
+
+      const error = new Error('test error')
+      fetchMock.mockRejectedValue(error)
+
+      try {
+        await f.get()
+      } catch (e) {
+        expect(e).toEqual(error)
+      }
+    })
+  })
+
+  it('when no request method, use GET for default', async () => {
+    const f = Fxios.create()
+    fetchMock.mockResponseOnce(JSON.stringify(mockData.get))
+    await f.request({
+      url: '/aaa',
+    })
+    expect(fetchMock).toHaveBeenLastCalledWith('/aaa', {
+      method: 'get',
     })
   })
 })

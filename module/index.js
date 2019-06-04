@@ -1,5 +1,5 @@
-import { parse, format } from 'url';
 import { compile } from 'path-to-regexp';
+import { parse, format } from 'url';
 
 // copy from lodash
 function isPlainObject(value) {
@@ -17,19 +17,25 @@ function isPlainObject(value) {
     }
     return Object.getPrototypeOf(value) === proto;
 }
-const defaultRequestConfig = {
-    credentials: 'include',
-    redirect: 'manual',
-    mode: 'cors',
-    cache: 'reload',
+const removeNonRequestInitProperty = (option) => {
+    const { query, body, path, baseURL, url, formData, ...requestInit } = option;
+    return requestInit;
 };
+// export const defaultRequestConfig: Omit<IFxiosRequestOption, 'url'> = {
+//   credentials: 'include',
+//   redirect: 'manual',
+//   mode: 'cors',
+//   cache: 'reload',
+//   method: 'get',
+//   baseURL: '',
+// }
 const jsonType = 'application/json';
 const parseUrl = (url, option) => {
-    if (option && option.param) {
-        for (let k of Object.keys(option.param)) {
-            option.param[k] = encodeURIComponent(option.param[k]);
+    if (option && option.path) {
+        for (const k of Object.keys(option.path)) {
+            option.path[k] = encodeURIComponent(String(option.path[k]));
         }
-        url = compile(url)(option.param);
+        url = compile(url)(option.path);
     }
     if (option && option.query) {
         const urlObject = parse(url, true); // true: let the urlObject.query is object
@@ -46,43 +52,64 @@ const parseUrl = (url, option) => {
     return url;
 };
 class Fxios {
-    constructor(config = defaultRequestConfig) {
+    constructor(config) {
         this.interceptor = {};
-        const { baseURL, ...requestConfig } = config;
-        this.fetchConfig = { ...requestConfig };
-        this.baseURL = baseURL || '';
-        const methods = ['get', 'post', 'put', 'delete', 'patch'];
-        methods.forEach((method) => {
-            this[method] = (url, option, runtimeConfig) => this.request(method, url, option, runtimeConfig);
+        this.baseURL = '';
+        // instance factory method
+        this.create = Fxios.create;
+        if (config) {
+            const { baseURL, ...requestInit } = config;
+            this.baseURL = config.baseURL || '';
+            this.requestOption = requestInit;
+        }
+        const methods = [
+            'get',
+            'post',
+            'put',
+            'delete',
+            'patch',
+            'head',
+            'options',
+        ];
+        return new Proxy(this, {
+            get(target, key, receiver) {
+                // console.log(target, key, receiver)
+                if (key in target) {
+                    return Reflect.get(target, key, receiver);
+                }
+                if (methods.includes(key)) {
+                    const method = (option) => {
+                        if (!option) {
+                            option = { url: '', method: 'get' };
+                        }
+                        option.method = key;
+                        return target.request(option);
+                    };
+                    Reflect.set(target, key, method);
+                    return method;
+                }
+            },
         });
     }
-    extendHttpMethod(method) {
-        this[method] = (url, option, runtimeConfig) => this.request(method, url, option, runtimeConfig);
+    /** factory method
+     * follow axios create method */
+    static create(config) {
+        return new Fxios(config);
     }
-    async request(method, url, option, runtimeConfig) {
-        method = method.toUpperCase();
-        if (runtimeConfig === undefined) {
-            runtimeConfig = {
-                method,
-            };
-        }
-        else {
-            runtimeConfig.method = method;
-        }
+    async request(option) {
         if (this.interceptor.request) {
-            [url, option, runtimeConfig] = await this.interceptor.request.call(this, url, option, runtimeConfig);
+            option = this.interceptor.request(option);
         }
+        option.method = option.method || 'get';
+        const baseURL = option.baseURL || this.baseURL;
+        const url = baseURL ? `${baseURL}${option.url}` : option.url;
         const parsedUrl = parseUrl(url, option);
-        const baseURL = runtimeConfig && 'baseURL' in runtimeConfig
-            ? runtimeConfig.baseURL
-            : this.baseURL;
-        const requestOption = {
-            ...this.fetchConfig,
-            ...runtimeConfig,
-        };
-        let headers = requestOption.headers || {};
-        if (option && option.body) {
+        const requestOption = removeNonRequestInitProperty(option);
+        const headers = requestOption.headers || {};
+        if (option.body) {
             let { body } = option;
+            // add application/json header when body is plain object
+            // and auto json stringify the body
             if (isPlainObject(body)) {
                 requestOption.headers = {
                     'Content-Type': jsonType,
@@ -92,8 +119,24 @@ class Fxios {
             }
             requestOption.body = body;
         }
-        const req = new Request(`${baseURL}${parsedUrl}`, requestOption);
-        return fetch(req)
+        // when upload file
+        if (option.formData) {
+            const { formData } = option;
+            if (formData instanceof FormData) {
+                requestOption.body = formData;
+            }
+            if (isPlainObject(formData)) {
+                const form = new FormData();
+                Object.keys(formData).forEach(k => {
+                    if (formData.hasOwnProperty(k)) {
+                        form.append(k, formData[k]);
+                    }
+                });
+                requestOption.body = form;
+            }
+        }
+        const req = deepAssign({}, this.requestOption, requestOption);
+        return fetch(parsedUrl, req)
             .then(res => {
             if (this.interceptor.response !== undefined) {
                 return this.interceptor.response.call(this, res, req);
@@ -107,9 +150,8 @@ class Fxios {
             throw err;
         });
     }
-    create(config = defaultRequestConfig) {
-        return new Fxios(config);
-    }
 }
+var index = new Fxios();
 
-export { Fxios, defaultRequestConfig, isPlainObject, jsonType, parseUrl };
+export default index;
+export { Fxios, isPlainObject, jsonType, parseUrl };

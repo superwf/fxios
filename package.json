@@ -1,6 +1,6 @@
 {
   "name": "fxios",
-  "version": "2.1.2",
+  "version": "3.0.0",
   "description": "ajax fetch axios",
   "main": "index.js",
   "umd:main": "dist/index.js",
@@ -26,13 +26,16 @@
   "author": "superwf@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "deep-assign": "^3.0.0",
     "path-to-regexp": "^3.0.0",
     "url": "^0.11.0"
   },
   "devDependencies": {
+    "@types/deep-assign": "^0.1.1",
     "@types/events": "^1.2.0",
     "@types/fetch-mock": "^7.2.3",
-    "@types/jest": "^23.1.4",
+    "@types/jest": "^24.0.13",
+    "@types/jsdom": "^12.2.3",
     "@types/lodash": "^4.14.110",
     "@types/node": "^10.5.2",
     "@types/node-fetch": "^2.1.1",
@@ -48,8 +51,11 @@
     "eslint-plugin-react": "^7.10.0",
     "fetch-mock": "^7.3.0",
     "isomorphic-fetch": "^2.2.1",
-    "jest": "^24.1.0",
+    "jest": "^24.8.0",
+    "jest-fetch-mock": "^2.1.2",
+    "jsdom": "^15.1.1",
     "lint-staged": "^7.0.4",
+    "localstorage-polyfill": "^1.0.1",
     "markdownlint": "^0.11.0",
     "markdownlint-cli": "^0.13.0",
     "prettier": "^1.12.1",
@@ -58,9 +64,10 @@
     "rollup-plugin-node-resolve": "^4.0.1",
     "rollup-plugin-typescript": "^1.0.1",
     "rollup-plugin-uglify": "^6.0.2",
-    "ts-jest": "^24.0.0",
+    "ts-jest": "^24.0.2",
     "ts-polyfill": "^3.0.1",
-    "tslint": "^5.11.0",
+    "tslint": "^5.16.0",
+    "tslint-config-prettier": "^1.18.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
     "typescript": "^3.4.1",
@@ -74,13 +81,14 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testURL": "http://localhost",
+    "testURL": "http://localhost/",
     "collectCoverageFrom": [
       "index.ts"
     ],
     "setupFiles": [
-      "./jest.setup.js"
+      "./jest.setup.ts"
     ],
+    "automock": false,
     "transform": {
       "^.+\\.(t|j)sx?$": "ts-jest"
     },

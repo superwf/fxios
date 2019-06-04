@@ -5,15 +5,16 @@
     "target": "es5",
     "noImplicitAny": true,
     "noUnusedParameters": false,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "strictNullChecks": true,
     "declaration": true,
     "listEmittedFiles": true,
     "sourceMap": true,
     "preserveConstEnums": true,
+    "typeRoots": ["node_modules/@types", "typings"],
     "moduleResolution": "node",
     "noImplicitUseStrict": true,
-    "lib": ["dom", "es2015", "es5", "es6"]
+    "lib": ["dom", "dom.iterable", "esnext"]
   },
   "include": ["index.ts"]
 }
