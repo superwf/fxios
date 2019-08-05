@@ -12,18 +12,22 @@
     "test": "jest",
     "coverage": "jest --coverage",
     "build": "npx tsc && rollup -c rollup.config.js",
-    "prepublish": "npm run build"
+    "release": "npx standard-version --no-verify",
+    "finepack": "npx finepack",
+    "prepublishOnly": "npm run finepack && npm run build && npm run release"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/superwf/fxios.git"
+    "url": "git+https://github.com/superwf/fxios.git"
   },
   "keywords": [
     "ajax",
     "fetch",
     "axios"
   ],
-  "author": "superwf@gmail.com",
+  "author": {
+    "name": "superwf@gmail.com"
+  },
   "license": "ISC",
   "dependencies": {
     "deep-assign": "^3.0.0",
@@ -50,6 +54,7 @@
     "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-react": "^7.10.0",
     "fetch-mock": "^7.3.0",
+    "finepack": "^2.9.1",
     "isomorphic-fetch": "^2.2.1",
     "jest": "^24.8.0",
     "jest-fetch-mock": "^2.1.2",
@@ -62,8 +67,9 @@
     "rollup": "^1.7.4",
     "rollup-plugin-commonjs": "^9.2.2",
     "rollup-plugin-node-resolve": "^4.0.1",
+    "rollup-plugin-terser": "^5.1.1",
     "rollup-plugin-typescript": "^1.0.1",
-    "rollup-plugin-uglify": "^6.0.2",
+    "standard-version": "^6.0.1",
     "ts-jest": "^24.0.2",
     "ts-polyfill": "^3.0.1",
     "tslint": "^5.16.0",
@@ -101,5 +107,16 @@
       "json",
       "node"
     ]
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/superwf/fxios/issues"
+  },
+  "homepage": "https://github.com/superwf/fxios#readme",
+  "files": [
+    "*.md",
+    "module",
+    "typings",
+    "index.*",
+    "dist"
+  ]
 }

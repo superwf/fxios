@@ -11,10 +11,9 @@
     "listEmittedFiles": true,
     "sourceMap": true,
     "preserveConstEnums": true,
-    "typeRoots": ["node_modules/@types", "typings"],
     "moduleResolution": "node",
     "noImplicitUseStrict": true,
     "lib": ["dom", "dom.iterable", "esnext"]
   },
-  "include": ["index.ts"]
+  "include": ["index.ts", "vendor.d.ts"]
 }

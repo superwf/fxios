@@ -1,5 +1,5 @@
 import resolve from 'rollup-plugin-node-resolve'
-import { uglify } from 'rollup-plugin-uglify'
+import { terser } from 'rollup-plugin-terser'
 import typescript from 'rollup-plugin-typescript'
 import commonjs from 'rollup-plugin-commonjs'
 import pkg from './package.json'
@@ -54,6 +54,6 @@ export default [
       file: pkg.unpkg,
       sourcemap: false,
     },
-    plugins: [...umdConfig.plugins, uglify()],
+    plugins: [...umdConfig.plugins, terser()],
   },
 ]
